@@ -3,6 +3,8 @@
 
 #include <string>
 
+using namespace std;
+
 class Protocol
 {
 public:
@@ -16,13 +18,13 @@ public:
   static const int FILE_WE = 207;
   static const int CONECTION_REST = 208;
 
-  Protocol();
-  string 
-  ~Protocol();
+  Protocol(char *device);
+  int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
+  void sendMessage(char *message);
+  //~Protocol();
 
 private:
-  
+  int socket;
 };
-
 
 #endif // !__PRTC__
