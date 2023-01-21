@@ -38,20 +38,26 @@ int Protocol::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer
     return -1;
 }
 
-void Protocol::sendMessage(string message, char seq)
+void Protocol::sendMessage(char* message, char seq)
 {
-    char *frame = Protocol::createFrame(message, seq);
+    // frame f = Protocol::createFrame(message, seq);
 
-    ssize_t sent = send(socket, (void *)frame, strlen(frame), 0);
+    ssize_t sent = send(socket, (void *)message, strlen(message), 0);
 }
 
-char *Protocol::createFrame(string message, char type)
+Protocol::frame *Protocol::createFrame(string message, unsigned short type, unsigned short seq)
 {
-    string frame;
-    unsigned int size = 4 * sizeof(message);
-    string checksum = "22";
-    frame += Protocol::MARK + to_string(size) + seq + message + checksum;
-    cout << frame << endl;
+    Protocol::frame *f = new Protocol::frame;
+    f->mark = Protocol::MARK;
+    f->type = type;
+    f->seq = seq;
+    f->size = sizeof(message);
+    f->checksum = 0x12;
+
+    for (int i = 0; i < sizeof(*f); i++)
+    {
+        printf("%c", ((char *)f)[i]);
+    }
 }
 
 unsigned short Protocol::checksum(unsigned short *buff, int _16bitword)
