@@ -1,9 +1,17 @@
-#include "protocol.h"
+#include "githyanki.h"
+#include <string>
+#include <iostream>
+
+using namespace std;
 
 int main(int argc, const char **argv)
 {
-    protocol::initSocket("lo");
-    //p.createFrame("socorro me ajuda pvf", Protocol::DATA);
+    std::string message = "nao augneto mais esse trabalho";
+    const char *messagec = message.c_str();
+    Githyanki::frame *msg = Githyanki::createFrame(messagec, 32, Githyanki::TEXT, 2);
+
+    cout << msg->size << endl;
+    msg->toBytes();
 
     return 0;
 }

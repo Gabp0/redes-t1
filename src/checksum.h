@@ -1,5 +1,5 @@
-#ifndef CHECKSUM
-#define CHECKSUM
+#ifndef __CHKS__
+#define __CHKS__
 
 #include <bits/stdc++.h>
 #include <string.h>
