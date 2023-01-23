@@ -16,7 +16,7 @@ public:
     Connection(string device);
     ~Connection(void);
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
-    void sendMessage(void *msg, size_t size);
+    void sendMessage(char *msg, size_t size);
 };
 
 #endif

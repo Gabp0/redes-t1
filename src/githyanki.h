@@ -46,7 +46,7 @@ namespace Githyanki
     char data[DATA_SIZE_MAX];
     uint16_t checksum;
 
-    void *toBytes();
+    size_t toBytes(char *buffer);
     void fromBytes(void *bytes);
   };
 

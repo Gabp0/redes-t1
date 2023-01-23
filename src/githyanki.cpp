@@ -13,26 +13,25 @@
 
 using namespace std;
 
-void *Githyanki::frame::toBytes()
+size_t Githyanki::frame::toBytes(char *buffer)
 {
     size_t size = this->size + 5;
-    char *bytes = new char[size];
 
     char header[3];
     header[0] = ((this->mark << 2) | (this->type >> 6));
     header[1] = ((this->type << 4) | (this->seq));
     header[2] = this->size;
 
-    memcpy(bytes, &header, sizeof(header));
-    memcpy(&bytes[3], this->data, this->size);
-    memcpy(&bytes[size - 1], &this->checksum, 2);
+    memcpy(buffer, &header, sizeof(header));
+    memcpy(&buffer[3], this->data, this->size);
+    memcpy(&buffer[size - 1], &this->checksum, 2);
 
     // print bytes as hex
-    for (size_t i = 0; i < size; ++i)
-        std::cout << std::setfill('0') << std::setw(2) << std::hex << (0xff & (unsigned int)bytes[i]);
-    cout << endl;
+    // for (size_t i = 0; i < size; ++i)
+    //    std::cout << std::setfill('0') << std::setw(2) << std::hex << (0xff & (unsigned int)bytes[i]);
+    // cout << endl;
 
-    return bytes;
+    return size;
 }
 
 void Githyanki::frame::fromBytes(void *bytes)
@@ -45,6 +44,8 @@ void Githyanki::frame::fromBytes(void *bytes)
     memcpy(&this->data, &msg[3], this->size);
     memcpy(&this->checksum, &msg[this->size + 4], 2);
 
+    cout << "frame: " << endl;
+    cout << msg << endl;
     cout << this->mark << " " << this->seq << endl;
     printf("%d\n", this->size);
     cout << this->data << endl;

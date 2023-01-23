@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <stdexcept>
+#include <iostream>
 #include "sockets/socket.h"
 #include "githyanki.h"
 
@@ -43,13 +44,15 @@ int Connection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buff
     return -1;
 }
 
-void Connection::sendMessage(void *msg, size_t size)
+void Connection::sendMessage(char *msg, size_t size)
 {
-    ssize_t sent = send(this->socket, msg, size, 0);
+    cout << this->socket << endl;
+    printf("%s\n%ld\n", msg, size);
 
+    ssize_t sent = send(this->socket, msg, size, 0);
     if (sent > 0)
     {
-        // cool logic
+        cout << "sent" << endl;
     }
 }
 
