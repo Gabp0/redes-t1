@@ -1,4 +1,4 @@
-#include "conection.h"
+#include "connection.h"
 #include <string>
 #include <cstring>
 #include <stdlib.h>
@@ -14,22 +14,19 @@
 
 using namespace std;
 
-Conection::Conection(string device)
+Connection::Connection(string device)
 {
     char *device_c = new char[device.length() + 1];
     strcpy(device_c, device.c_str());
     this->socket = cria_raw_socket(device_c);
 }
 
-Conection::~Conection(void)
+Connection::~Connection(void)
 {
-    if (close(this->socket) == -1)
-    {
-        throw invalid_argument("Invalid socket descriptor");
-    }
+    close(this->socket);
 }
 
-int Conection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer)
+int Connection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer)
 {
     long long comeco = timestamp();
     struct timeval timeout = {.tv_sec = 0, .tv_usec = timeoutMillis * 1000};
@@ -46,7 +43,7 @@ int Conection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffe
     return -1;
 }
 
-void Conection::sendMessage(void *msg, size_t size)
+void Connection::sendMessage(void *msg, size_t size)
 {
     ssize_t sent = send(this->socket, msg, size, 0);
 
@@ -57,7 +54,7 @@ void Conection::sendMessage(void *msg, size_t size)
 }
 
 // usando long long pra (tentar) sobreviver ao ano 2038
-long long timestamp(void)
+long long Connection::timestamp(void)
 {
     struct timeval tp;
     gettimeofday(&tp, NULL);

@@ -5,14 +5,16 @@
 
 using namespace std;
 
-class Conection
+class Connection
 {
 private:
     int socket;
 
+    long long timestamp(void);
+
 public:
-    Conection(string device);
-    ~Conection(void);
+    Connection(string device);
+    ~Connection(void);
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
     void sendMessage(void *msg, size_t size);
 };

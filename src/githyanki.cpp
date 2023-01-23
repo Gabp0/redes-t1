@@ -9,30 +9,28 @@
 #include <unistd.h>
 #include <cstring>
 #include <netinet/in.h>
-#include <vector>
+#include <iomanip>
 
 using namespace std;
 
 void *Githyanki::frame::toBytes()
 {
-    size_t size = this->size + 6;
+    size_t size = this->size + 5;
     char *bytes = new char[size];
 
-    uint32_t header = ((this->mark << 18) | (this->type << 12) | (this->seq << 8) | (this->size));
-    cout << header << endl;
+    char header[3];
+    header[0] = ((this->mark << 2) | (this->type >> 6));
+    header[1] = ((this->type << 4) | (this->seq));
+    header[2] = this->size;
 
-    memcpy(&bytes[0], &header, 4);
+    memcpy(bytes, &header, sizeof(header));
     memcpy(&bytes[3], this->data, this->size);
-    memcpy(&bytes[size - 2], &this->checksum, 2);
+    memcpy(&bytes[size - 1], &this->checksum, 2);
 
-    for (size_t i = 0; i < size; i++)
-    {
-        int c = bytes[i];
-        cout << c;
-    }
+    // print bytes as hex
+    for (size_t i = 0; i < size; ++i)
+        std::cout << std::setfill('0') << std::setw(2) << std::hex << (0xff & (unsigned int)bytes[i]);
     cout << endl;
-
-    vector<bool> out();
 
     return bytes;
 }
