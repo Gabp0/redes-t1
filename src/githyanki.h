@@ -47,6 +47,7 @@ namespace Githyanki
     uint16_t checksum;
 
     void *toBytes();
+    void fromBytes(void *bytes);
   };
 
   frame *createFrame(const char *data, size_t data_size, unsigned short type, unsigned short seq);

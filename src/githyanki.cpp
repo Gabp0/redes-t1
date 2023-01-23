@@ -35,6 +35,22 @@ void *Githyanki::frame::toBytes()
     return bytes;
 }
 
+void Githyanki::frame::fromBytes(void *bytes)
+{
+    char *msg = (char *)bytes;
+
+    this->mark = (msg[0] >> 2);
+    this->seq = (msg[0] << 6) | (msg[1] >> 4);
+    memcpy(&this->size, &msg[2], 1);
+    memcpy(&this->data, &msg[3], this->size);
+    memcpy(&this->checksum, &msg[this->size + 4], 2);
+
+    cout << this->mark << " " << this->seq << endl;
+    printf("%d\n", this->size);
+    cout << this->data << endl;
+    printf("%d\n", this->checksum);
+}
+
 Githyanki::frame *Githyanki::createFrame(const char *data, size_t data_size, unsigned short type, unsigned short seq)
 {
     Githyanki::frame *f = new Githyanki::frame;
