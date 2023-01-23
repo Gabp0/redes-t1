@@ -25,7 +25,7 @@ namespace Githyanki
   static const short CONECTION_REST = 208;
 
   // Mark / Start of Frame
-  static const short SOH = 0x01;
+  static const short SOH = 0x3F;
 
   // Types
   static const short TEXT = 0x01;
@@ -42,21 +42,15 @@ namespace Githyanki
     unsigned short mark : 6;
     unsigned short type : 6;
     unsigned short seq : 4;
-    unsigned short size : 8;
+    uint8_t size;
     char data[DATA_SIZE_MAX];
-    unsigned short checksum : 16;
+    uint16_t checksum;
 
     void *toBytes();
   };
 
-  int initSocket(string device);
-  int receiveMessage(int socket, int timeoutMillis, char *buffer, int tamanho_buffer);
-  void sendMessage(frame msg, int socket);
-
   frame *createFrame(const char *data, size_t data_size, unsigned short type, unsigned short seq);
-
   unsigned short checksum(unsigned short *buff, int _16bitword);
-  long long timestamp();
   int isValid(char *buffer, int tamanho_buffer);
 };
 

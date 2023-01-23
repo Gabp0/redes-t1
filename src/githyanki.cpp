@@ -9,63 +9,32 @@
 #include <unistd.h>
 #include <cstring>
 #include <netinet/in.h>
+#include <vector>
 
 using namespace std;
-
-int Githyanki::initSocket(string device)
-{
-    char *device_c = new char[device.length() + 1];
-    strcpy(device_c, device.c_str());
-    int socket = cria_raw_socket(device_c);
-    cout << socket << endl;
-    return socket;
-}
-
-// retorna -1 se deu timeout, ou quantidade de bytes lidos
-int Githyanki::receiveMessage(int socket, int timeoutMillis, char *buffer, int tamanho_buffer)
-{
-    long long comeco = timestamp();
-    struct timeval timeout = {.tv_sec = 0, .tv_usec = timeoutMillis * 1000};
-    setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    int bytes_lidos;
-    do
-    {
-        bytes_lidos = recv(socket, buffer, tamanho_buffer, 0);
-        if (Githyanki::isValid(buffer, bytes_lidos))
-        {
-            return bytes_lidos;
-        }
-    } while (timestamp() - comeco <= timeoutMillis);
-    return -1;
-}
 
 void *Githyanki::frame::toBytes()
 {
     size_t size = this->size + 6;
     char *bytes = new char[size];
 
-    unsigned int header = ((this->mark << 18) | (this->type << 12) | (this->seq << 8) | (this->size));
+    uint32_t header = ((this->mark << 18) | (this->type << 12) | (this->seq << 8) | (this->size));
+    cout << header << endl;
 
     memcpy(&bytes[0], &header, 4);
-    cout << *bytes << endl;
     memcpy(&bytes[3], this->data, this->size);
-    bytes[size - 1] = this->checksum;
+    memcpy(&bytes[size - 2], &this->checksum, 2);
 
-    cout << bytes << endl;
+    for (size_t i = 0; i < size; i++)
+    {
+        int c = bytes[i];
+        cout << c;
+    }
+    cout << endl;
+
+    vector<bool> out();
 
     return bytes;
-}
-
-void Githyanki::sendMessage(frame msg, int socket)
-{
-    void *bytes = msg.toBytes();
-    size_t size = msg.size + 6;
-    ssize_t sent = send(socket, bytes, size, 0);
-
-    if (sent > 0)
-    {
-        // cool logic
-    }
 }
 
 Githyanki::frame *Githyanki::createFrame(const char *data, size_t data_size, unsigned short type, unsigned short seq)
@@ -81,21 +50,14 @@ Githyanki::frame *Githyanki::createFrame(const char *data, size_t data_size, uns
     return f;
 }
 
-// usando long long pra (tentar) sobreviver ao ano 2038
-long long Githyanki::timestamp()
-{
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    return tp.tv_sec * 1000 + tp.tv_usec / 1000;
-}
-
 int Githyanki::isValid(char *buffer, int tamanho_buffer)
 {
     if (tamanho_buffer <= 0)
     {
         return 0;
     }
-    // insira a sua validação de Githyankio aqui
-    // return buffer == "0x7f"; // Esta errado
+
+    // cool validation
+
     return 1;
 }

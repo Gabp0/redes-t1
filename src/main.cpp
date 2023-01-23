@@ -10,7 +10,6 @@ int main(int argc, const char **argv)
     const char *messagec = message.c_str();
     Githyanki::frame *msg = Githyanki::createFrame(messagec, 32, Githyanki::TEXT, 2);
 
-    cout << msg->size << endl;
     msg->toBytes();
 
     return 0;
