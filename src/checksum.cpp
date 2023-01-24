@@ -1,10 +1,11 @@
 #include <bits/stdc++.h>
 #include <string.h>
+#include <iostream>
 using namespace std;
 
 string ones_complement(string data)
 {
-    for (int i = 0; i < data.length(); i++)
+    for (size_t i = 0; i < data.length(); i++)
     {
         if (data[i] == '0')
             data[i] = '1';
@@ -15,8 +16,9 @@ string ones_complement(string data)
     return data;
 }
 
-string checkSum(string data, int block_size)
+string calcCheckSum(string data, int block_size = 8)
 {
+    cout << data << endl; 
     int n = data.length();
     if (n % block_size != 0)
     {
@@ -100,16 +102,15 @@ string checkSum(string data, int block_size)
         else
             result = additions;
     }
-
+    cout << ones_complement(result) << endl;
     return ones_complement(result);
 }
 
-bool checker(string sent_message, string rec_message, int block_size)
+bool checker(string rec_message, string rec_checksum, int block_size = 8)
 {
-    string sender_checksum = checkSum(sent_message, block_size);
-    string receiver_checksum = checkSum(rec_message + sender_checksum, block_size);
+    string msg_checksum = calcCheckSum(rec_message, block_size);
 
-    if (count(receiver_checksum.begin(), receiver_checksum.end(), '0') == block_size)
+    if (count(msg_checksum.begin(), rec_checksum.end(), '0') == block_size)
         return true;
     else
         return false;

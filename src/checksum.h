@@ -5,8 +5,7 @@
 #include <string.h>
 using namespace std;
 
-string ones_complement(string data);
-string checkSum(string data, int block_size);
-bool checker(string sent_message, string rec_message, int block_size);
+string calcCheckSum(string data, int block_size = 8);
+bool checker(string rec_message, string rec_checksum, int block_size = 8);
 
 #endif // !CHECKSUM

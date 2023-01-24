@@ -20,11 +20,9 @@ int main(int argc, char **argv)
         cout << "sending" << endl;
 
         char txt[32] = "não aguento mais esse trabalho";
-        Githyanki::frame *f = Githyanki::createFrame(txt, sizeof(txt), Githyanki::TEXT, 0);
+        Githyanki::frame f = Githyanki::frame(txt, sizeof(txt), Githyanki::TEXT, 0);
 
-        char bytes[Githyanki::FRAME_SIZE_MAX];
-        size_t size = f->toBytes(bytes);
-        c.sendMessage(bytes, size);
+        c.sendMessage(f);
     }
     else if (cmdOptionExists(argv, argv + argc, "-r"))
     {
@@ -34,8 +32,9 @@ int main(int argc, char **argv)
         size_t size = c.receiveMessage(10000, buffer, Githyanki::FRAME_SIZE_MAX);
         cout << size << endl;
 
-        Githyanki::frame *f = new Githyanki::frame;
-        f->fromBytes(buffer);
+        Githyanki::frame f = {};
+        f.fromBytes(buffer);
+        cout << f.toString() << endl;
     }
 
     return 0;

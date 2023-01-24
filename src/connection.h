@@ -2,6 +2,7 @@
 #define __CNT__
 
 #include <string>
+#include "githyanki.h"
 
 using namespace std;
 
@@ -15,8 +16,9 @@ private:
 public:
     Connection(string device);
     ~Connection(void);
+    int Acknowledge(int sequence);
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
-    void sendMessage(char *msg, size_t size);
+    void sendMessage(Githyanki::frame msg);
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include "githyanki.h"
 
 using namespace std;
+using namespace Githyanki;
 
 Connection::Connection(string device)
 {
@@ -44,22 +45,33 @@ int Connection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buff
     return -1;
 }
 
-void Connection::sendMessage(char *msg, size_t size)
+void Connection::sendMessage(frame msg)
 {
-    cout << this->socket << endl;
-    printf("%s\n%ld\n", msg, size);
+    //cout << this->socket << endl;
+    char bytes[FRAME_SIZE_MAX];
+    size_t size = msg.toBytes(bytes);
 
-    ssize_t sent = send(this->socket, msg, size, 0);
+    printf("%s\n%ld\n", bytes, size);
+
+    ssize_t sent = send(this->socket, bytes, size, 0);
     if (sent > 0)
     {
         cout << "sent" << endl;
     }
 }
 
-// usando long long pra (tentar) sobreviver ao ano 2038
-long long Connection::timestamp(void)
-{
+int Connection::Acknowledge(int sequence){
+    struct frame awk = frame(AWK, sequence);
+    char bytes[FRAME_SIZE_MAX];
+
+    size_t size = awk.toBytes(bytes);
+
+    ssize_t sent = send(this->socket, bytes, size, 0);
+    return sent;
+}
+
+long long Connection::timestamp() {
     struct timeval tp;
     gettimeofday(&tp, NULL);
-    return tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    return tp.tv_sec*1000 + tp.tv_usec/1000;
 }

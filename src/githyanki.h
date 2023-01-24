@@ -42,15 +42,18 @@ namespace Githyanki
     unsigned short mark : 6;
     unsigned short type : 6;
     unsigned short seq : 4;
-    uint8_t size;
+    uint8_t dataSize;
     char data[DATA_SIZE_MAX];
-    uint16_t checksum;
+    char checksum[8];
 
+    frame();
+    frame(unsigned short type, unsigned short seq);
+    frame(const char *data, size_t data_size, unsigned short type, unsigned short seq);
+    string toString();
     size_t toBytes(char *buffer);
     void fromBytes(void *bytes);
   };
 
-  frame *createFrame(const char *data, size_t data_size, unsigned short type, unsigned short seq);
   unsigned short checksum(unsigned short *buff, int _16bitword);
   int isValid(char *buffer, int tamanho_buffer);
 };
