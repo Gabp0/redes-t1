@@ -11,7 +11,8 @@ namespace Githyanki
 {
   // Sizes
   static const short FRAME_SIZE_MAX = 256;
-  static const short DATA_SIZE_MAX = 250;
+  static const short DATA_SIZE_MAX = 253;
+  static const short CHECK_SIZE = 1;
 
   // MSG
   static const short SUCESS = 200;
@@ -39,12 +40,13 @@ namespace Githyanki
 
   struct frame
   {
-    unsigned short mark : 6;
+    //0111111 10000 0000
+    //0111111 10001 1000
     unsigned short type : 6;
     unsigned short seq : 4;
-    uint8_t dataSize;
+    unsigned short sizeData : 6;
     char data[DATA_SIZE_MAX];
-    char checksum[8];
+    char checksum[CHECK_SIZE];
 
     frame();
     frame(unsigned short type, unsigned short seq);
@@ -54,6 +56,7 @@ namespace Githyanki
     void fromBytes(void *bytes);
   };
 
+  void printFrame(Githyanki::frame  *f);
   unsigned short checksum(unsigned short *buff, int _16bitword);
   int isValid(char *buffer, int tamanho_buffer);
 };

@@ -19,9 +19,11 @@ int main(int argc, char **argv)
     {
         cout << "sending" << endl;
 
-        char txt[32] = "não aguento mais esse trabalho";
+        char txt[] = "não aguento mais esse trabalho";
         Githyanki::frame f = Githyanki::frame(txt, sizeof(txt), Githyanki::TEXT, 0);
-
+        
+        cout << f.toString() << endl;
+        Githyanki::printFrame(&f);
         c.sendMessage(f);
     }
     else if (cmdOptionExists(argv, argv + argc, "-r"))
@@ -34,8 +36,11 @@ int main(int argc, char **argv)
 
         Githyanki::frame f = {};
         f.fromBytes(buffer);
+        printFrame(&f);
         cout << f.toString() << endl;
     }
 
     return 0;
 }
+
+

@@ -12,6 +12,7 @@
 #include <iostream>
 #include "sockets/socket.h"
 #include "githyanki.h"
+#include "checksum.h"
 
 using namespace std;
 using namespace Githyanki;
@@ -48,12 +49,24 @@ int Connection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buff
 void Connection::sendMessage(frame msg)
 {
     //cout << this->socket << endl;
-    char bytes[FRAME_SIZE_MAX];
-    size_t size = msg.toBytes(bytes);
+    char buffer[FRAME_SIZE_MAX];
 
-    printf("%s\n%ld\n", bytes, size);
+    size_t size = msg.toBytes(buffer);
+    cout << "Size: " << size << endl << endl;
+    cout << "Frame: " << endl;
 
-    ssize_t sent = send(this->socket, bytes, size, 0);
+    cout<< "Header: ";
+    for(size_t i = 0; i < 4;i++){
+        printf("%x",buffer[i]);
+    }
+    cout << " Data:\"";
+    for(size_t i = 3; i < size -2;i++){
+        cout << buffer[i];
+    }
+    printf("\" Checksum: %c",buffer[size-1]);
+    cout << endl << endl;
+
+    ssize_t sent = send(this->socket, buffer, size, 0);
     if (sent > 0)
     {
         cout << "sent" << endl;

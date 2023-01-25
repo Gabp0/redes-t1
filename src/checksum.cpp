@@ -18,7 +18,6 @@ string ones_complement(string data)
 
 string calcCheckSum(string data, int block_size = 8)
 {
-    cout << data << endl; 
     int n = data.length();
     if (n % block_size != 0)
     {
@@ -102,7 +101,6 @@ string calcCheckSum(string data, int block_size = 8)
         else
             result = additions;
     }
-    cout << ones_complement(result) << endl;
     return ones_complement(result);
 }
 
