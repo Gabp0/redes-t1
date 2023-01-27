@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
-// #include <cstring>
+#include <cstring>
 #include <string>
 #include <netinet/in.h>
 #include <iomanip>
@@ -66,7 +66,7 @@ void Githyanki::frame::fromBytes(void *bytes)
 
     this->type = msg[0] >> 2;
     this->seq = (msg[0] & 0x3) << 2;
-    this->seq = seq | ((msg[1]& 0xc0) >> 6);
+    this->seq = seq | ((msg[1] & 0xc0) >> 6);
     this->sizeData = msg[1] & 0x3f;
     memcpy(&this->data, &msg[3], this->sizeData);
     memcpy(&this->checksum, &msg[this->sizeData + 4], 2);
