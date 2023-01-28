@@ -46,14 +46,14 @@ int Connection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buff
     return -1;
 }
 
-void Connection::sendMessage(frame msg)
+void Connection::sendMessage(frame *msg)
 {
-    //cout << this->socket << endl;
+    // cout << this->socket << endl;
     char buffer[FRAME_SIZE_MAX];
     char soh[1];
     soh[0] = Githyanki::SOH;
 
-    size_t size = msg.toBytes(buffer);
+    size_t size = msg->toBytes(buffer);
 
     // cout << "Size: " << size << endl << endl;
     // cout << "Frame: " << endl;
@@ -77,28 +77,32 @@ void Connection::sendMessage(frame msg)
     }
 }
 
-int Connection::waitAcknowledge(){
+Ack Connection::waitAcknowledge()
+{
     char buffer[Githyanki::FRAME_SIZE_MAX];
 
-    size_t size = c.receiveMessage(10000, buffer, Githyanki::FRAME_SIZE_MAX);
+    while (true)
+    {
+        size_t size = c.receiveMessage(10000, buffer, Githyanki::FRAME_SIZE_MAX);
 
-    Githyanki::Frame f = {};
-    f.fromBytes(buffer);
-    
-    //Timeout
-    if(size == -1){
-        return -1;
+        Githyanki::Frame f = {};
+        f.fromBytes(buffer);
+
+        // Timeout
+        if (size == -1)
+            return -1;
+
+        // Frame received not Acknowledge
+        if (f.type == Githyanki::AWK || f.type == Githyanki::NACK)
+        {
+            Ack ack = { .type = f.type, .seq = f.seq};
+            return ack;
+        }
     }
-
-    //Frame received not Acknowledge
-    if(f.type != Githyanki::AWK)
-    return -2;
-
-    
-    return f.seq;
 }
 
-int Connection::acknowledge(int sequence){
+int Connection::acknowledge(int sequence)
+{
     struct frame awk = frame(AWK, sequence);
     char bytes[FRAME_SIZE_MAX];
 
@@ -108,8 +112,9 @@ int Connection::acknowledge(int sequence){
     return sent;
 }
 
-long long Connection::timestamp() {
+long long Connection::timestamp()
+{
     struct timeval tp;
     gettimeofday(&tp, NULL);
-    return tp.tv_sec*1000 + tp.tv_usec/1000;
+    return tp.tv_sec * 1000 + tp.tv_usec / 1000;
 }

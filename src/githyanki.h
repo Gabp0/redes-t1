@@ -14,8 +14,8 @@ namespace Githyanki
   static const short FRAME_SIZE_MAX = 256;
   static const short DATA_SIZE_MAX = 253;
   static const short CHECK_SIZE = 1;
-  static const short SEQUENCE_MAX = 16;
-  static const short SEND_SEQUENCE_MAX = 16/2;
+  static const short WINDOW_MAX = 16;
+  static const short SEND_WINDOW_MAX = 16/2;
 
   // MSG
   static const short SUCESS = 200;
@@ -41,6 +41,12 @@ namespace Githyanki
   static const short END = 0x0F;
   static const short DATA = 0x0D;
 
+  struct Ack{
+    //Ack or Nack
+    short type;
+    short seq;
+  };
+
   struct Frame
   {
     //0111111 10000 0000
@@ -62,14 +68,26 @@ namespace Githyanki
   struct SendObject
   {
     char *data;
+
+    int bytesFramed;
+    int size;
+
     short type;
     int frameQty;
     Connection *con;
 
-    int sended;
+    SendObject(char *data);
+  };
 
+  struct Window{
+    int window[SEND_WINDOW_MAX];
+    Frame *frames[SEND_WINDOW_MAX];
 
-    SendObject();
+    int lastSeq;
+    int firstNotFramedIndex;
+
+    void acknowledge(Ack ack);
+    void init();
   };
 
   int SlidingWindow(Githyanki::SendObject *obj);
