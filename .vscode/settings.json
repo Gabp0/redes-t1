@@ -89,6 +89,20 @@
     "variant": "cpp",
     "expected": "cpp",
     "spanstream": "cpp",
-    "stacktrace": "cpp"
+    "stacktrace": "cpp",
+    "xstring": "cpp",
+    "ios": "cpp",
+    "xfacet": "cpp",
+    "xiosbase": "cpp",
+    "xlocale": "cpp",
+    "xlocinfo": "cpp",
+    "xlocmon": "cpp",
+    "xlocnum": "cpp",
+    "xloctime": "cpp",
+    "xmemory": "cpp",
+    "xstddef": "cpp",
+    "xtr1common": "cpp",
+    "xtree": "cpp",
+    "xutility": "cpp"
   }
 }

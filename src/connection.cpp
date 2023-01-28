@@ -50,22 +50,26 @@ void Connection::sendMessage(frame msg)
 {
     //cout << this->socket << endl;
     char buffer[FRAME_SIZE_MAX];
+    char soh[1];
+    soh[0] = Githyanki::SOH;
 
     size_t size = msg.toBytes(buffer);
-    cout << "Size: " << size << endl << endl;
-    cout << "Frame: " << endl;
 
-    cout<< "Header: ";
-    for(size_t i = 0; i < 4;i++){
-        printf("%x",buffer[i]);
-    }
-    cout << " Data:\"";
-    for(size_t i = 3; i < size -2;i++){
-        cout << buffer[i];
-    }
-    printf("\" Checksum: %c",buffer[size-1]);
-    cout << endl << endl;
+    // cout << "Size: " << size << endl << endl;
+    // cout << "Frame: " << endl;
 
+    // cout<< "Header: ";
+    // for(size_t i = 0; i < 4;i++){
+    //     printf("%x",buffer[i]);
+    // }
+    // cout << " Data:\"";
+    // for(size_t i = 3; i < size -2;i++){
+    //     cout << buffer[i];
+    // }
+    // printf("\" Checksum: %c",buffer[size-1]);
+    // cout << endl << endl;
+
+    ssize_t sentSOH = send(this->socket, soh, 1, 0);
     ssize_t sent = send(this->socket, buffer, size, 0);
     if (sent > 0)
     {
@@ -73,7 +77,28 @@ void Connection::sendMessage(frame msg)
     }
 }
 
-int Connection::Acknowledge(int sequence){
+int Connection::waitAcknowledge(){
+    char buffer[Githyanki::FRAME_SIZE_MAX];
+
+    size_t size = c.receiveMessage(10000, buffer, Githyanki::FRAME_SIZE_MAX);
+
+    Githyanki::Frame f = {};
+    f.fromBytes(buffer);
+    
+    //Timeout
+    if(size == -1){
+        return -1;
+    }
+
+    //Frame received not Acknowledge
+    if(f.type != Githyanki::AWK)
+    return -2;
+
+    
+    return f.seq;
+}
+
+int Connection::acknowledge(int sequence){
     struct frame awk = frame(AWK, sequence);
     char bytes[FRAME_SIZE_MAX];
 

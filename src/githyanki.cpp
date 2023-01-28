@@ -4,25 +4,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <unistd.h>
+//#include <sys/socket.h>
+//#include <sys/time.h>
+//#include <unistd.h>
 #include <cstring>
 #include <string>
-#include <netinet/in.h>
+//#include <netinet/in.h>
 #include <iomanip>
 #include <iostream>
 #include "checksum.h"
 
 using namespace std;
 
-size_t Githyanki::frame::toBytes(char *buffer)
+size_t Githyanki::Frame::toBytes(char *buffer)
 {
     size_t size = sizeData + 3;
-    // string sBuffer;
-
-    // cout << endl
-    //      << "toBytes" << endl;
 
     bitset<6> bsetType(type);
     bitset<4> bsetSeq(seq);
@@ -33,28 +29,21 @@ size_t Githyanki::frame::toBytes(char *buffer)
 
     bitset<16> bsetHeader(bsetType.to_string() + bsetSeq.to_string() + bsetSize.to_string());
     cout << bsetHeader << endl;
-    // unsigned long lHeader = bsetHeader.to_ulong();
 
     cout << endl;
     char headerA = type << 2;
     headerA = headerA | seq >> 2;
     char headerB = seq << 6;
     headerB = headerB | sizeData;
-    printf("A: %02x, B: %02x\n", headerA, headerB);
     buffer[0] = headerA;
     buffer[1] = headerB;
     memcpy(&buffer[3], this->data, this->sizeData);
     memcpy(&buffer[size - 1], &this->checksum, 1);
 
-    // print bytes as hex
-    // for (size_t i = 0; i < size; ++i)
-    //    std::cout << std::setfill('0') << std::setw(2) << std::hex << (0xff & (unsigned int)bytes[i]);
-    // cout << endl;
-
     return size;
 }
 
-void Githyanki::frame::fromBytes(void *bytes)
+void Githyanki::Frame::fromBytes(void *bytes)
 {
     char *msg = (char *)bytes;
     cout << "Frame: ";
@@ -72,7 +61,7 @@ void Githyanki::frame::fromBytes(void *bytes)
     memcpy(&this->checksum, &msg[this->sizeData + 4], 2);
 }
 
-Githyanki::frame::frame(const char *data, size_t data_size, unsigned short type, unsigned short seq)
+Githyanki::Frame::Frame(const char *data, size_t data_size, unsigned short type, unsigned short seq)
 {
     // mark = Githyanki::SOH;
     this->type = type;
@@ -86,13 +75,56 @@ Githyanki::frame::frame(const char *data, size_t data_size, unsigned short type,
     checksum[0] = 'a';
 }
 
-string Githyanki::frame::toString()
+string Githyanki::Frame::toString()
 {
     //"Mark: " + to_string(mark) +
     return "Frame\nFrame toString\nType: " + to_string(type) + " Seq: " + to_string(seq) + " DataSize: " + to_string(sizeData) + " Data: " + data + " Checksum: " + checksum;
 }
 
-Githyanki::frame::frame(unsigned short type, unsigned short seq)
+
+
+int prepareFrame(int seq, Githyanki::SendObject *obj){
+
+
+}
+
+//Send first n frames from *frames
+int sendNFrames(int n, Githyanki::Frame *frames, Connection *con){
+    for(int i = 0; i < n;i++){
+        con->sendMessage(frames[i]);
+    }
+}
+
+int Githyanki::SlidingWindow(Githyanki::SendObject *obj){
+    //Resolve Conflicts
+    //To Do
+    Githyanki::Frame frames[6];
+    Connection *con = obj->con;
+    int awc = 0;
+    int nextSeq = 0;
+    int sentFrames = 0;
+    int sendingFrames = 0;
+    obj->frameQty = ceil(sizeof(obj->data) / Githyanki::DATA_SIZE_MAX);
+
+
+    while(sentFrames < obj->frameQty){
+        sendingFrames = prepareFrame(nextSeq, obj);
+        sendNFrames(sendingFrames, frames, con);
+        
+        awc = con->waitAcknowledge();
+        if(awc == -2){
+            awc = con->waitAcknowledge();
+        }
+        if(awc >= 0){
+            nextSeq = (awc+1)%Githyanki::SEQUENCE_MAX;
+            sentFrames += awc;
+        }
+    }
+
+    return 1;
+}
+
+Githyanki::Frame::Frame(unsigned short type, unsigned short seq)
 {
     // mark = Githyanki::SOH;
     this->type = type;
@@ -102,9 +134,13 @@ Githyanki::frame::frame(unsigned short type, unsigned short seq)
     // memcpy(this->checksum, calcCheckSum(data).c_str(), 8);
 }
 
-Githyanki::frame::frame() {}
+Githyanki::Frame::Frame() {}
 
-void Githyanki::printFrame(Githyanki::frame *f)
+Githyanki::SendObject::SendObject() {
+    this->sended = 0;
+}
+
+void Githyanki::printFrame(Githyanki::Frame *f)
 {
     unsigned char *charPtr = (unsigned char *)f;
     cout << "Print Frame: ";

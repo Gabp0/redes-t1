@@ -3,6 +3,7 @@
 
 #include <string>
 #include <bitset>
+#include "connection.h"
 
 using namespace std;
 
@@ -13,6 +14,8 @@ namespace Githyanki
   static const short FRAME_SIZE_MAX = 256;
   static const short DATA_SIZE_MAX = 253;
   static const short CHECK_SIZE = 1;
+  static const short SEQUENCE_MAX = 16;
+  static const short SEND_SEQUENCE_MAX = 16/2;
 
   // MSG
   static const short SUCESS = 200;
@@ -38,7 +41,7 @@ namespace Githyanki
   static const short END = 0x0F;
   static const short DATA = 0x0D;
 
-  struct frame
+  struct Frame
   {
     //0111111 10000 0000
     //0111111 10001 1000
@@ -48,15 +51,29 @@ namespace Githyanki
     char data[DATA_SIZE_MAX];
     char checksum[CHECK_SIZE];
 
-    frame();
-    frame(unsigned short type, unsigned short seq);
-    frame(const char *data, size_t data_size, unsigned short type, unsigned short seq);
+    Frame();
+    Frame(unsigned short type, unsigned short seq);
+    Frame(const char *data, size_t data_size, unsigned short type, unsigned short seq);
     string toString();
     size_t toBytes(char *buffer);
     void fromBytes(void *bytes);
   };
 
-  void printFrame(Githyanki::frame  *f);
+  struct SendObject
+  {
+    char *data;
+    short type;
+    int frameQty;
+    Connection *con;
+
+    int sended;
+
+
+    SendObject();
+  };
+
+  int SlidingWindow(Githyanki::SendObject *obj);
+  void printFrame(Githyanki::Frame  *f);
   unsigned short checksum(unsigned short *buff, int _16bitword);
   int isValid(char *buffer, int tamanho_buffer);
 };

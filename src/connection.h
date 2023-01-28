@@ -16,9 +16,10 @@ private:
 public:
     Connection(string device);
     ~Connection(void);
-    int Acknowledge(int sequence);
+    int acknowledge(int sequence);
+    int waitAcknowledge();
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
-    void sendMessage(Githyanki::frame msg);
+    void sendMessage(Githyanki::Frame msg);
 };
 
 #endif
