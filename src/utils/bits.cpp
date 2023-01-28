@@ -37,8 +37,6 @@ char *bits::flip(char *data, size_t size)
 char *bits::toChar(vector<bit> input)
 {
     char *output = new char[input.size() / 8];
-    // cout << data_bits.size() << endl;
-    cout << "size = " << input.size() / 8 << endl;
 
     char cbyte = 0x0;
     int counter = 0;

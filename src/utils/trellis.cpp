@@ -34,6 +34,24 @@ void Trellis::makeTransition(bit group[2])
     this->cutPaths();
 }
 
+vector<bit> Trellis::getOptimalPath(void)
+{
+
+    Path opt = *min_element(this->trellis->begin(), this->trellis->end(), comp);
+    vector<bit> output;
+
+    // cout << "output: ";
+    for (size_t i = 0; i < (opt.path.size() - 1); i++)
+    {
+        bit t = Node::calculateTransition(opt.path.at(i), opt.path.at(i + 1));
+        output.push_back(t);
+        // cout << t;
+    }
+    // cout << endl;
+
+    return output;
+}
+
 Trellis::Path *Trellis::createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2])
 {
     int hamming = hammingDistance(transition, group);                                        // calculate hamming distance
@@ -97,22 +115,4 @@ void Trellis::Path::print(void)
 bool comp(Trellis::path x, Trellis::path y)
 {
     return (x.path_metrics < y.path_metrics);
-}
-
-vector<bit> Trellis::getOptimalPath(void)
-{
-
-    Path opt = *min_element(this->trellis->begin(), this->trellis->end(), comp);
-    vector<bit> output;
-
-    cout << "output: ";
-    for (size_t i = 0; i < (opt.path.size() - 1); i++)
-    {
-        bit t = Node::calculateTransition(opt.path.at(i), opt.path.at(i + 1));
-        output.push_back(t);
-        cout << t;
-    }
-    cout << endl;
-
-    return output;
 }
