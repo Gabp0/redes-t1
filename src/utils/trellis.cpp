@@ -30,8 +30,14 @@ void Trellis::makeTransition(bit group[2])
     }
 
     this->trellis->clear();
+    delete this->trellis;
     this->trellis = new_trellis;
     this->cutPaths();
+}
+
+bool comp(Trellis::path x, Trellis::path y)
+{
+    return (x.path_metrics < y.path_metrics);
 }
 
 vector<bit> Trellis::getOptimalPath(void)
@@ -110,9 +116,4 @@ void Trellis::Path::print(void)
         cout << n->id << " -> ";
     }
     cout << "weight: " << this->path_metrics << endl;
-}
-
-bool comp(Trellis::path x, Trellis::path y)
-{
-    return (x.path_metrics < y.path_metrics);
 }

@@ -36,7 +36,8 @@ char *bits::flip(char *data, size_t size)
 
 char *bits::toChar(vector<bit> input)
 {
-    char *output = new char[input.size() / 8];
+    size_t size = (input.size() / 8) + 1;
+    char *output = new char[size];
 
     char cbyte = 0x0;
     int counter = 0;
@@ -55,6 +56,7 @@ char *bits::toChar(vector<bit> input)
         }
     }
 
+    output[size - 1] = '\0';
     return output;
 }
 
