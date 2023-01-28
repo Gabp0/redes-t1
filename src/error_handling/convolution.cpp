@@ -1,62 +1,27 @@
 #include "convolution.h"
 #include <iostream>
 #include <vector>
-#include <cstring>
+#include <string>
+#include "../utils/bits.h"
+#include "../utils/trellis.h"
 
 using namespace std;
+using namespace convolution;
+using namespace bits;
 
-vector<bool> fromChar(char *data, size_t size)
+char *convolution::code(char *data, size_t size)
 {
-    vector<bool> output;
+    vector<bit> output;
+    bit s0 = 0, s1 = 0;
 
-    for (size_t i = 0; i < size; i++) 
+    vector<bit> data_bits(fromChar(data, size));
+
+    for (bit in : data_bits)
     {
-        char c = data[i];
-        for (int j = 0; j < 8; j++) // iterate over bits
-        {
-            bool bit = ((c >> (7 - j)) & 1);
-            output.push_back(bit);
-        }
-    }
+        bit c0 = (in != s1);
+        bit c1 = (c0 != s0);
 
-    return output;
-}
-
-char *toChar(vector<bool> bool_bits)
-{
-    char *output = new char[bool_bits.size()];
-    
-    char cbyte = 0x0;
-    int counter = 0;
-    int i = 0;
-    for (bool bit : bool_bits)
-    {
-        cbyte = (cbyte << 1) | bit;
-        counter += 1;
-        if (counter == 8)
-        {
-            strcpy(&output[i], &cbyte);
-            counter = 0;
-            i++;
-        }
-    }
-
-    return output;
-}
-
-char *convolution::convolution(char *data, size_t size)
-{
-    vector<bool> output;
-    bool s0 = 0, s1 = 0;
-
-    vector<bool> bool_bits(fromChar(data, size));
-
-    for (bool in : bool_bits)
-    {
-        bool c0 = (in != s1);
-        bool c1 = (c0 != s0);
-
-        cout << "in: " << in << " s0: " << s0 << " s1: " << s1 << " c0: " << c0 << " c1: " << c1 << endl;
+        // cout << "in: " << in << " s0: " << s0 << " s1: " << s1 << " c0: " << c0 << " c1: " << c1 << endl;
 
         s1 = s0;
         s0 = in;
@@ -64,6 +29,25 @@ char *convolution::convolution(char *data, size_t size)
         output.push_back(c0);
         output.push_back(c1);
     }
-    
+
     return toChar(output);
+}
+
+char *convolution::viterbiDecoder(char *data, size_t size)
+{
+    vector<bit> data_bits(fromChar(data, size));
+
+    Trellis trellis;
+
+    bit group[2];
+    for (size_t i = 0; i < data_bits.size(); i += 2)
+    {
+        // works with groups of 2 bits
+        group[0] = data_bits.at(i);
+        group[1] = data_bits.at(i + 1);
+
+        trellis.makeTransition(group);
+    }
+
+    return toChar(trellis.getOptimalPath());
 }

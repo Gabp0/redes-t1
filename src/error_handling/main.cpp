@@ -15,8 +15,11 @@ int main(int argc, char const *argv[])
     uint16_t check16 = checksum::check16(data, size);
     printf("Check 16 bits = %d\n", checksum::isValid(data, size, check16));
 
-    char *conv = convolution::convolution(data, size);
+    char *conv = convolution::code(data, size);
     printf("Check convolution = %s\n", conv);
+
+    char *conv_dec = convolution::viterbiDecoder(data, size);
+    printf("Check convolution decoding = %s\n", conv_dec);
 
     return 0;
 }
