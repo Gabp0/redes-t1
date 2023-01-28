@@ -18,13 +18,15 @@ private:
         bit one_tr[2];
         Node *one_tr_state;
 
-        static bit calculateTransition(Node x, Node y);
+        static bit calculateTransition(Node *x, Node *y);
     };
 
     struct Path
     {
-        vector<Node> path;
+        vector<Node *> path;
         int path_metrics;
+
+        void print(void);
     };
 
     Node s00{
@@ -61,7 +63,7 @@ private:
 
     vector<Path> *trellis;
 
-    Path *createNewPath(Path *current, Node next_state, bit transition[2], bit group[2]);
+    Path *createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2]);
     void cutPaths(void);
 
 public:

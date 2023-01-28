@@ -1,5 +1,6 @@
 #include "bits.h"
 #include <vector>
+#include <iostream>
 
 using namespace std;
 using namespace bits;
@@ -23,8 +24,9 @@ vector<bit> bits::fromChar(char *data, size_t size)
 
 char *bits::toChar(vector<bit> input)
 {
-    char *output = new char[input.size()];
+    char *output = new char[input.size() / 8];
     // cout << data_bits.size() << endl;
+    cout << "size = " << input.size() / 8 << endl;
 
     char cbyte = 0x0;
     int counter = 0;
@@ -48,8 +50,8 @@ char *bits::toChar(vector<bit> input)
 
 int bits::hammingDistance(bit x[2], bit y[2])
 {
-    int distance = (x[0] == y[0]) ? 1 : 0;
-    distance += (x[1] == y[1]) ? 1 : 0;
+    int distance = (x[0] == y[0]) ? 0 : 1;
+    distance += (x[1] == y[1]) ? 0 : 1;
 
     return distance;
 }
