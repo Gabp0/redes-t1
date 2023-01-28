@@ -22,6 +22,18 @@ vector<bit> bits::fromChar(char *data, size_t size)
     return output;
 }
 
+char *bits::flip(char *data, size_t size)
+{
+    vector<bit> input = fromChar(data, size);
+
+    input.at(size / 4) = !input.at(size / 4);
+    input.at(size * 3 / 4) = !input.at(size * 3 / 4);
+    input.at(size / 20) = !input.at(size / 20);
+    input.at(size * 9 / 10) = !input.at(size * 9 / 10);
+
+    return toChar(input);
+}
+
 char *bits::toChar(vector<bit> input)
 {
     char *output = new char[input.size() / 8];

@@ -1,5 +1,6 @@
 #include "checksum.h"
 #include "convolution.h"
+#include "../utils/bits.h"
 #include <iostream>
 
 using namespace std;
@@ -18,7 +19,7 @@ int main(int argc, char const *argv[])
     char *conv = convolution::code(data, size);
     printf("Check convolution = %s\n", conv);
 
-    char *conv_dec = convolution::viterbiDecoder(conv, size * 2);
+    char *conv_dec = convolution::viterbiDecoder(bits::flip(conv, size * 2), size * 2);
     printf("Check convolution decoding = %s\n", conv_dec);
 
     return 0;
