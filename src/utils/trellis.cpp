@@ -13,26 +13,27 @@ Trellis::Trellis()
     this->trellis = new vector<Path>{{vector<Node *>{&s00}, 0}};
 }
 
+Trellis::~Trellis()
+{
+    delete this->trellis;
+}
+
 void Trellis::makeTransition(bit group[2])
 {
-    vector<Path> *new_trellis = new vector<Path>;
-    for (Path p : *(this->trellis))
+    vector<Path> aux_trellis(*this->trellis);
+    this->trellis->clear();
+    for (Path p : aux_trellis)
     {
         Node *cnode = p.path.back();
 
         // add new path with zero transition
-        Path *new_tr = createNewPath(&p, cnode->zero_tr_state, cnode->zero_tr, group);
-        new_trellis->push_back(*new_tr); // push to trellis
+        Path new_path = createNewPath(&p, cnode->zero_tr_state, cnode->zero_tr, group);
+        this->addPath(new_path);
 
         // add new path with one transition
-        new_tr = createNewPath(&p, cnode->one_tr_state, cnode->one_tr, group);
-        new_trellis->push_back(*new_tr); // push to trellis
+        new_path = createNewPath(&p, cnode->one_tr_state, cnode->one_tr, group);
+        this->addPath(new_path);
     }
-
-    this->trellis->clear();
-    delete this->trellis;
-    this->trellis = new_trellis;
-    this->cutPaths();
 }
 
 bool comp(Trellis::path x, Trellis::path y)
@@ -58,46 +59,37 @@ vector<bit> Trellis::getOptimalPath(void)
     return output;
 }
 
-Trellis::Path *Trellis::createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2])
+Trellis::Path Trellis::createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2])
 {
-    int hamming = hammingDistance(transition, group);                                        // calculate hamming distance
-    Path *new_tr = new Path{vector<Node *>(current->path), current->path_metrics + hamming}; // create new Path
-    new_tr->path.push_back(next_state);                                                      // add new state to path
+    int hamming = hammingDistance(transition, group);                              // calculate hamming distance
+    Path new_path{vector<Node *>(current->path), current->path_metrics + hamming}; // create new Path
+    new_path.path.push_back(next_state);                                           // add new state to path
 
     // cout << current->path_metrics << " + " << hamming << " = " << current->path_metrics + hamming << endl;
     // new_tr->print();
 
-    return new_tr;
+    return new_path;
 }
 
-void Trellis::cutPaths(void)
+void Trellis::addPath(Path new_path)
 {
-    vector<int> to_remove;
     for (size_t i = 0; i < this->trellis->size(); i++)
     {
         Path x = this->trellis->at(i);
-        for (size_t j = i + 1; j < this->trellis->size(); j++)
-        {
-            Path y = this->trellis->at(j);
 
-            if (x.path.back() == y.path.back())
+        if (x.path.back() == new_path.path.back())
+        {
+            // cout << "path metrics: " << x.path_metrics << " vs " << y.path_metrics << endl;
+            if (new_path.path_metrics < x.path_metrics)
             {
-                // cout << "path metrics: " << x.path_metrics << " vs " << y.path_metrics << endl;
-                int r = (x.path_metrics > y.path_metrics) ? i : j;
-                to_remove.push_back(r);
+                this->trellis->erase(this->trellis->begin() + i);
+                this->trellis->push_back(new_path);
             }
+            return;
         }
     }
 
-    // remove duplicates
-    sort(to_remove.begin(), to_remove.end());
-    to_remove.erase(unique(to_remove.begin(), to_remove.end()), to_remove.end());
-
-    // remove from trellis
-    for (auto it = to_remove.rbegin(); it != to_remove.rend(); ++it)
-    {
-        this->trellis->erase(this->trellis->begin() + (int)*it);
-    }
+    this->trellis->push_back(new_path);
 }
 
 bit Trellis::Node::calculateTransition(Node *x, Node *y)

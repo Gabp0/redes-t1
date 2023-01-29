@@ -63,14 +63,14 @@ private:
 
     vector<Path> *trellis;
 
-    Path *createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2]);
-    void cutPaths(void);
+    Path createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2]);
+    void addPath(Path new_path);
 
 public:
     typedef Path path;
 
     Trellis();
-    //~Trellis();
+    ~Trellis();
     void makeTransition(bit group[2]);
     vector<bit> getOptimalPath();
 };

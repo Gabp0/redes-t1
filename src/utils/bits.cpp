@@ -56,7 +56,6 @@ char *bits::toChar(vector<bit> input)
         }
     }
 
-    output[size - 1] = '\0';
     return output;
 }
 
