@@ -12,7 +12,6 @@
 #include <iostream>
 #include "sockets/socket.h"
 #include "githyanki.h"
-#include "checksum.h"
 
 using namespace std;
 using namespace Githyanki;
@@ -46,8 +45,8 @@ Connection::~Connection(void)
 //     return -1;
 // }
 
-Frame Connection::receiveFrame(){
-    Frame frameReceived = Frame();
+Frame* Connection::receiveFrame(){
+    Frame *frameReceived = new Frame();
 
     int timeoutMillis = 10000;
     char buffer[Githyanki::FRAME_SIZE_MAX];
@@ -64,10 +63,10 @@ Frame Connection::receiveFrame(){
         {
             bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
         }
-        if(Githyanki::isValid(buffer, tamanho_buffer, &frameReceived))
+        if(Githyanki::isValid(buffer, tamanho_buffer, frameReceived))
         return frameReceived;
     } while (timestamp() - comeco <= timeoutMillis);
-    return Frame(Githyanki::TIMEOUT, 0);
+    return new Frame(Githyanki::TIMEOUT, 0);
 }
 
 void Connection::sendFrame(Frame *msg)
@@ -95,7 +94,7 @@ void Connection::sendFrame(Frame *msg)
 
     ssize_t sentSOH = send(this->socket, soh, 1, 0);
     ssize_t sent = send(this->socket, buffer, size, 0);
-    if (sent > 0)
+    if (sent > 0 && sentSOH > 0)
     {
         cout << "sent" << endl;
     }
@@ -104,18 +103,19 @@ void Connection::sendFrame(Frame *msg)
 Githyanki::Ack Connection::waitAcknowledge()
 {
     char buffer[Githyanki::FRAME_SIZE_MAX];
+    Frame *frame;
 
     while (true)
     {
-        size_t size = receiveMessage(10000, buffer, Githyanki::FRAME_SIZE_MAX);
+        frame = receiveFrame();
 
         Githyanki::Frame f = {};
         f.fromBytes(buffer);
 
         // Timeout
-        if (size == -1)
+        if (frame->type == Githyanki::TIMEOUT)
         {
-            Ack ack = {.type = TIMEOUT, .seq = -1};
+            Ack ack = {.type = TIMEOUT, .seq = 0};
             return ack;
         }
 
@@ -125,6 +125,7 @@ Githyanki::Ack Connection::waitAcknowledge()
             Ack ack = {.type = f.type, .seq = f.seq};
             return ack;
         }
+        delete frame;
     }
 }
 

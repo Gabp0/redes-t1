@@ -21,7 +21,7 @@ public:
     Githyanki::Ack waitAcknowledge();
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
     void sendFrame(Githyanki::Frame *msg);
-    Githyanki::Frame receiveFrame();
+    Githyanki::Frame* receiveFrame();
 };
 
 #endif

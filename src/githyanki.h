@@ -3,10 +3,13 @@
 
 #include <string>
 #include <bitset>
-#include "connection.h"
+
+
 
 using namespace std;
 
+//Nao pode dar include no Connection.h por causa de include ciclico entao fazemos apenas a assinatura do Connection
+class Connection;
 // Global Intelligent Technology Handling Yielding Advanced Network Knowledge Interface Protocol
 namespace Githyanki
 {
@@ -43,8 +46,8 @@ namespace Githyanki
 
   struct Ack{
     //Ack or Nack
-    short type;
-    short seq;
+    unsigned short type;
+    unsigned short seq;
   };
 
   struct Frame
