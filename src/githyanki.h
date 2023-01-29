@@ -15,7 +15,7 @@ namespace Githyanki
   static const short DATA_SIZE_MAX = 253;
   static const short CHECK_SIZE = 1;
   static const short WINDOW_MAX = 16;
-  static const short SEND_WINDOW_MAX = 16/2;
+  static const short SEND_WINDOW_MAX = WINDOW_MAX/2;
 
   // MSG
   static const short SUCESS = 200;
@@ -49,8 +49,6 @@ namespace Githyanki
 
   struct Frame
   {
-    //0111111 10000 0000
-    //0111111 10001 1000
     unsigned short type : 6;
     unsigned short seq : 4;
     unsigned short sizeData : 6;
@@ -65,35 +63,42 @@ namespace Githyanki
     void fromBytes(void *bytes);
   };
 
-  struct SendObject
+  struct DataObject
   {
     char *data;
 
     int bytesFramed;
     int size;
 
+    char *name;  
+    int nameSize;
+
     short type;
     int frameQty;
     Connection *con;
 
-    SendObject(char *data);
+    ~DataObject();
+    DataObject();
+    DataObject(char *data);
+    DataObject(char *data, char *name);
   };
 
   struct Window{
     int window[SEND_WINDOW_MAX];
     Frame *frames[SEND_WINDOW_MAX];
 
-    int lastSeq;
+    int lastSeq; //Next sequence thats not in use
     int firstNotFramedIndex;
 
     void acknowledge(Ack ack);
     void init();
   };
 
-  int SlidingWindow(Githyanki::SendObject *obj);
+  int SlidingWindowSend(Githyanki::DataObject *obj);
+  Githyanki::DataObject SlidingWindowReceive(Connection con);
   void printFrame(Githyanki::Frame  *f);
   unsigned short checksum(unsigned short *buff, int _16bitword);
-  int isValid(char *buffer, int tamanho_buffer);
+  int isValid(char *buffer, int tamanho_buffer, Frame *frame);
 };
 
 #endif // !__PRTC__

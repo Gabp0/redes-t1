@@ -10,7 +10,7 @@ LDLIBS = -lm -lgmp
 # diretorios fonte
 VPATH = src:src/sockets
 
-objs = main.o socket.o githyanki.o checksum.o connection.o
+objs = main.o githyanki.o checksum.o connection.o
 
 .PHONY: all clean purge
 
@@ -21,9 +21,9 @@ $(TARGET): $(objs)
 	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o socket
 
 # compilacao
-main.o: main.cpp githyanki.h
+main.o: main.cpp connection.h githyanki.h
 socket.o: socket.c socket.h
-githyanki.o: githyanki.cpp githyanki.h
+githyanki.o: githyanki.cpp githyanki.h connection.h
 checksum.o: checksum.cpp checksum.h
 connection.o: connection.cpp connection.h githyanki.h
 

@@ -5,6 +5,7 @@
 #include "githyanki.h"
 
 using namespace std;
+using namespace Githyanki;
 
 class Connection
 {
@@ -19,7 +20,8 @@ public:
     int acknowledge(int sequence);
     Githyanki::Ack waitAcknowledge();
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
-    void sendMessage(Githyanki::Frame *msg);
+    void sendFrame(Githyanki::Frame *msg);
+    Githyanki::Frame receiveFrame();
 };
 
 #endif
