@@ -1,4 +1,5 @@
 socket
+errorHandler
 
 # Prerequisites
 *.d

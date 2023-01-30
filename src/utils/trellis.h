@@ -8,27 +8,29 @@ using namespace std;
 using namespace bits;
 
 class Trellis
+// trelica para implementacao do algoritmo de viterbi
 {
 private:
     struct Node
-    {
-        char id;
-        bit zero_tr[2];
-        Node *zero_tr_state;
-        bit one_tr[2];
-        Node *one_tr_state;
+    {   // nodo da trelica
+        char id;    // label do nodo
+        bit zero_tr[2]; // bits para transicao no zero
+        Node *zero_tr_state; // estado resultante na transicao do zero
+        bit one_tr[2]; // bits para transicao no um
+        Node *one_tr_state; // estado resultante na transicao do um
 
         static bit calculateTransition(Node *x, Node *y);
     };
 
     struct Path
-    {
-        vector<Node *> path;
-        int path_metrics;
+    {   // ordem dos nodos e distancia de hamming total
+        vector<Node *> path; // ordem dos nodos
+        int path_metrics;   // distancia de hammming
 
         void print(void);
     };
 
+    // possiveis transicoes na trelica
     Node s00{
         '0',
         {0, 0},

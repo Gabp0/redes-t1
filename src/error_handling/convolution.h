@@ -7,6 +7,7 @@
 using namespace std;
 
 namespace convolution
+// implementa o codigo convolucional e o algoritmo de viterbi para decodificar
 {
     char *code(char *data, size_t size);
     char *viterbiDecoder(char *data, size_t size);

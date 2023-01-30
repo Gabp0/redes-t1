@@ -1,5 +1,6 @@
 #include "githyanki.h"
 #include "sockets/socket.h"
+#include "error_handling/checksum.h"
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,7 +13,6 @@
 #include <netinet/in.h>
 #include <iomanip>
 #include <iostream>
-#include "checksum.h"
 
 using namespace std;
 

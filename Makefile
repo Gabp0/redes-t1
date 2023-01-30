@@ -4,11 +4,11 @@ CC = g++
 TARGET = rawSocket
 
 # flags
-CPPFLAGS = -Wall -g
+CPPFLAGS = -Wall -g --std=c++17
 LDLIBS = -lm -lgmp
 
 # diretorios fonte
-VPATH = src:src/sockets
+VPATH = src:src/sockets:src/error_handling
 
 objs = main.o socket.o githyanki.o checksum.o connection.o
 
@@ -31,5 +31,5 @@ connection.o: connection.cpp connection.h githyanki.h
 clean:
 	-rm -f $(objs) *~
 purge: clean
-	-rm -f rgps
+	-rm -f $(TARGET)
 

@@ -4,7 +4,7 @@ CC = g++
 TARGET = errorHandler
 
 # flags
-CPPFLAGS = -Wall -g
+CPPFLAGS = -Wall -g --std=c++17
 LDLIBS = -lm -lgmp
 
 # diretorios fonte
@@ -31,5 +31,5 @@ bits.o: bits.cpp bits.h
 clean:
 	-rm -f $(objs) *~
 purge: clean
-	-rm -f rgps
+	-rm -f $(TARGET)
 

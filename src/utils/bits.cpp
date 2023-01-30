@@ -6,6 +6,7 @@ using namespace std;
 using namespace bits;
 
 vector<bit> bits::fromChar(char *data, size_t size)
+// converte um vetor de char para um vetor de bits
 {
     vector<bit> output;
 
@@ -23,6 +24,7 @@ vector<bit> bits::fromChar(char *data, size_t size)
 }
 
 char *bits::flip(char *data, size_t size)
+// flipa bits aleatorios para testar
 {
     vector<bit> input = fromChar(data, size);
 
@@ -35,6 +37,7 @@ char *bits::flip(char *data, size_t size)
 }
 
 char *bits::toChar(vector<bit> input)
+// converte um vetor de bits para um vetor de char
 {
     size_t size = (input.size() / 8) + 1;
     char *output = new char[size];
@@ -60,6 +63,7 @@ char *bits::toChar(vector<bit> input)
 }
 
 int bits::hammingDistance(bit x[2], bit y[2])
+// calcula a distancia de hamming entre um grupo de dois bits
 {
     int distance = (x[0] == y[0]) ? 0 : 1;
     distance += (x[1] == y[1]) ? 0 : 1;

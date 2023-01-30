@@ -4,6 +4,7 @@
 using namespace std;
 
 uint8_t checksum::check8(char *data, size_t size)
+// checksum de 8 bits
 {
     uint16_t sum = 0;
 
@@ -25,6 +26,7 @@ uint8_t checksum::check8(char *data, size_t size)
 }
 
 uint16_t checksum::check16(char *data, size_t size)
+// checksum de 16 bits
 {
     uint32_t sum = 0;
 
@@ -57,11 +59,13 @@ uint16_t checksum::check16(char *data, size_t size)
 }
 
 bool checksum::isValid(char *data, size_t size, uint8_t check)
+// testa se o checksum de 8 bits e valido
 {
     return (check8(data, size) == check);
 }
 
 bool checksum::isValid(char *data, size_t size, uint16_t check)
+// testa se o checksum de 16 bits e valido
 {
     return (check16(data, size) == check);
 }

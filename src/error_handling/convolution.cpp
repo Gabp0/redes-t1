@@ -10,6 +10,7 @@ using namespace convolution;
 using namespace bits;
 
 char *convolution::code(char *data, size_t size)
+// gera o codigo convulacional 
 {
     vector<bit> output;
     bit s0 = 0, s1 = 0;
@@ -32,6 +33,7 @@ char *convolution::code(char *data, size_t size)
 }
 
 char *convolution::viterbiDecoder(char *data, size_t size)
+// decodifica o codigo convulacional usando o algoritmo de viterbi
 {
     vector<bit> data_bits(fromChar(data, size));
     Trellis trellis;
@@ -39,7 +41,7 @@ char *convolution::viterbiDecoder(char *data, size_t size)
     bit group[2];
     for (size_t i = 0; i < data_bits.size(); i += 2)
     {
-        // works with groups of 2 bits
+        // trabalha com grupos de dois bits por vez
         group[0] = data_bits.at(i + 1);
         group[1] = data_bits.at(i);
 

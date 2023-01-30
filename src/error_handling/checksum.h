@@ -6,6 +6,7 @@
 using namespace std;
 
 namespace checksum
+// implementa o checksum para deteccao de erros
 {
     uint8_t check8(char *data, size_t size);
     uint16_t check16(char *data, size_t size);

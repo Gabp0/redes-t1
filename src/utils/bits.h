@@ -6,6 +6,7 @@
 using namespace std;
 
 namespace bits
+// funcoes para manipular vetores de bits
 {
     typedef bool bit;
 
