@@ -108,6 +108,7 @@ Githyanki::Ack Connection::waitAcknowledge()
     while (true)
     {
         frame = receiveFrame();
+        cout << "Wait Ack"<< endl<<frame->toString() << endl;
 
         Githyanki::Frame f = {};
         f.fromBytes(buffer);

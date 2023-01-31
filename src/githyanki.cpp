@@ -22,23 +22,13 @@ size_t Githyanki::Frame::toBytes(char *buffer)
 {
     size_t size = sizeData + 3;
 
-    bitset<6> bsetType(type);
-    bitset<4> bsetSeq(seq);
-    bitset<6> bsetSize(sizeData);
-    cout << bsetType << endl;
-    cout << bsetSeq << endl;
-    cout << bsetSize << endl;
+    char headerA = type << 4;
+    headerA = headerA | seq;
+    char headerB = sizeData;
 
-    bitset<16> bsetHeader(bsetType.to_string() + bsetSeq.to_string() + bsetSize.to_string());
-    cout << bsetHeader << endl;
-
-    cout << endl;
-    char headerA = type << 2;
-    headerA = headerA | seq >> 2;
-    char headerB = seq << 6;
-    headerB = headerB | sizeData;
     buffer[0] = headerA;
     buffer[1] = headerB;
+
     memcpy(&buffer[3], this->data, this->sizeData);
     memcpy(&buffer[size - 1], &this->checksum, 1);
 
@@ -48,24 +38,16 @@ size_t Githyanki::Frame::toBytes(char *buffer)
 void Githyanki::Frame::fromBytes(void *bytes)
 {
     char *msg = (char *)bytes;
-    cout << "Frame: ";
-    for (size_t i = 0; i < sizeof(msg); i++)
-    {
-        printf("%02x", msg[i]);
-    }
-    cout << endl;
 
-    this->type = msg[0] >> 2;
-    this->seq = (msg[0] & 0x3) << 2;
-    this->seq = seq | ((msg[1] & 0xc0) >> 6);
-    this->sizeData = msg[1] & 0x3f;
+    this->type = msg[0] >> 4;
+    this->seq = msg[0] & 0xF;
+    this->sizeData = msg[1];
     memcpy(&this->data, &msg[3], this->sizeData);
     memcpy(&this->checksum, &msg[this->sizeData + 4], 2);
 }
 
 Githyanki::Frame::Frame(const char *data, size_t data_size, unsigned short type, unsigned short seq)
 {
-    // mark = Githyanki::SOH;
     this->type = type;
     this->seq = seq;
     this->sizeData = data_size;
@@ -123,7 +105,10 @@ Githyanki::DataObject::DataObject()
 
 Githyanki::DataObject::~DataObject()
 {
-    delete (name);
+    // if (name != NULL)
+    // {
+    //     delete (name);
+    // }
 }
 
 Githyanki::DataObject::DataObject(char *data)
@@ -190,7 +175,7 @@ void Githyanki::Window::acknowledge(Githyanki::Ack ack)
 
 void Githyanki::Window::init()
 {
-    for (int i = 0; i < (int)sizeof(this->window); i++)
+    for (int i = 0; i < Githyanki::SEND_WINDOW_MAX; i++)
     {
         window[i] = i;
     }
@@ -202,19 +187,23 @@ void Githyanki::Window::init()
 
 int prepareFrames(Githyanki::Window *win, Githyanki::DataObject *obj)
 {
+    char dataBuffer[Githyanki::DATA_SIZE_MAX];
     int qtyPrepared = 0;
     int i = win->firstNotFramedIndex;
+    int seq, bytesToSend = 0;
+
     for (; i < Githyanki::SEND_WINDOW_MAX; i++)
     {
-        int seq = win->window[win->firstNotFramedIndex];
-        char dataBuffer[Githyanki::DATA_SIZE_MAX];
-        int bytesToSend = obj->size - obj->bytesFramed;
+        seq = win->window[win->firstNotFramedIndex];
+        bytesToSend = obj->size - obj->bytesFramed;
+
         if (bytesToSend == 0)
             return qtyPrepared; // Acabou
         if (bytesToSend > Githyanki::DATA_SIZE_MAX)
             bytesToSend = Githyanki::DATA_SIZE_MAX;
 
         memcpy(dataBuffer, obj->data + obj->bytesFramed, bytesToSend);
+        obj->bytesFramed += bytesToSend;
 
         win->frames[i] = new Githyanki::Frame(dataBuffer, bytesToSend, obj->type, seq);
         win->firstNotFramedIndex++;
@@ -250,7 +239,8 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
 {
     // Resolve Conflicts
     // To Do
-    Connection *con = obj->con;
+    Connection *myCon = obj->myCon;
+    Connection *otherCon = obj->otherCon;
     Ack ack;
     Githyanki::Window window = {};
 
@@ -259,13 +249,19 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
     obj->frameQty = ceil(sizeof(obj->data) / Githyanki::DATA_SIZE_MAX);
 
     sendingFrames = prepareFrames(&window, obj);
+    // cout << sendingFrames << endl;
+    // for (Frame *f : window.frames)
+    // {
+    //     cout << f->toString() << endl
+    //          << endl;
+    // }
 
-    while (sendingFrames <= 0)
+    while (sendingFrames > 0)
     {
-        sendNFrames(sendingFrames, window.frames, con);
+        sendNFrames(sendingFrames, window.frames, otherCon);
 
         // Wait to recieve Ack or Nack
-        ack = con->waitAcknowledge();
+        ack = myCon->waitAcknowledge();
 
         if (ack.type != Githyanki::TIMEOUT)
         {
@@ -275,9 +271,9 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
     }
 
     if (obj->type == Githyanki::TEXT)
-        sendEndFrame(window.lastSeq, con);
+        sendEndFrame(window.lastSeq, otherCon);
     else
-        sendEndFrame(window.lastSeq, con, obj->name, obj->nameSize);
+        sendEndFrame(window.lastSeq, otherCon, obj->name, obj->nameSize);
 
     return 1;
 }
@@ -291,7 +287,7 @@ void flushBuffer(Frame **buffer, int size)
     }
 }
 
-Githyanki::DataObject Githyanki::SlidingWindowReceive(Connection con)
+Githyanki::DataObject Githyanki::SlidingWindowReceive(Connection *myCon, Connection *otherCon)
 {
     DataObject obj = DataObject();
     Githyanki::Frame *bufferRecieved[256];
@@ -302,7 +298,8 @@ Githyanki::DataObject Githyanki::SlidingWindowReceive(Connection con)
     while (!finished)
     {
         frame = new Frame();
-        frame = con.receiveFrame();
+        frame = myCon->receiveFrame();
+        // cout << frame->toString() << endl;
         if (frame->type != Githyanki::TIMEOUT)
         {
             if (frame->type == Githyanki::END)
@@ -324,7 +321,7 @@ Githyanki::DataObject Githyanki::SlidingWindowReceive(Connection con)
                     obj.type = frame->type;
                 }
                 bufferIndex++;
-                if (bufferIndex >= 250)
+                if (bufferIndex >= 6)
                 {
                     flushBuffer(bufferRecieved, bufferIndex);
                     bufferIndex = 0;

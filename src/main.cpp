@@ -40,7 +40,8 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option)
 
 int main(int argc, char **argv)
 {
-        Connection c("lo");
+        Connection serverCon("lo");
+        Connection clientCon("lo1");
 
         if (cmdOptionExists(argv, argv + argc, "-s"))
         {
@@ -49,11 +50,16 @@ int main(int argc, char **argv)
                 Githyanki::DataObject msg = {};
                 msg.data = text.data();
                 msg.type = Githyanki::TEXT;
+                msg.myCon = &serverCon;
+                msg.otherCon = &clientCon;
+                msg.size = text.size();
+                msg.bytesFramed = 0;
 
                 Githyanki::SlidingWindowSend(&msg);
         }
         else if (cmdOptionExists(argv, argv + argc, "-r"))
         {
+                Githyanki::SlidingWindowReceive(&clientCon, &serverCon);
         }
 
         return 0;

@@ -52,9 +52,9 @@ namespace Githyanki
 
   struct Frame
   {
-    unsigned short type : 6;
+    unsigned short type : 4;
     unsigned short seq : 4;
-    unsigned short sizeData : 6;
+    unsigned short sizeData : 8;
     char data[DATA_SIZE_MAX];
     char checksum[CHECK_SIZE];
 
@@ -78,7 +78,8 @@ namespace Githyanki
 
     short type;
     int frameQty;
-    Connection *con;
+    Connection *myCon;
+    Connection *otherCon;
 
     ~DataObject();
     DataObject();
@@ -98,7 +99,7 @@ namespace Githyanki
   };
 
   int SlidingWindowSend(Githyanki::DataObject *obj);
-  Githyanki::DataObject SlidingWindowReceive(Connection con);
+  Githyanki::DataObject SlidingWindowReceive(Connection *myCon, Connection *otherCon);
   void printFrame(Githyanki::Frame  *f);
   unsigned short checksum(unsigned short *buff, int _16bitword);
   int isValid(char *buffer, int tamanho_buffer, Frame *frame);
