@@ -1,4 +1,4 @@
-#include "convolution.h"
+#include "errors.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -6,10 +6,10 @@
 #include "../utils/trellis.h"
 
 using namespace std;
-using namespace convolution;
+using namespace errors;
 using namespace bits;
 
-char *convolution::code(char *data, size_t size)
+char *errors::convolutionalCode(char *data, size_t size)
 // gera o codigo convulacional 
 {
     vector<bit> output;
@@ -32,7 +32,7 @@ char *convolution::code(char *data, size_t size)
     return toChar(output);
 }
 
-char *convolution::viterbiDecoder(char *data, size_t size)
+char *errors::viterbiDecoder(char *data, size_t size)
 // decodifica o codigo convulacional usando o algoritmo de viterbi
 {
     vector<bit> data_bits(fromChar(data, size));
