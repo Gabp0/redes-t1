@@ -32,15 +32,13 @@ uint16_t errors::checksum16(char *data, size_t size)
 
     for (size_t i = 0; i < size; i += 2)
     {
-        uint16_t cbytes = (uint8_t)data[i];
+        uint16_t cbytes = data[i];
+        cbytes <<= 8;
 
         if (data[i + 1])
         {
-            cbytes = (cbytes << 8) | ((uint8_t)data[i]);
-        }
-        else
-        {
-            cbytes = (cbytes << 8);
+            uint8_t nbyte = data[i + 1];
+            cbytes |= nbyte;
         }
 
         sum += cbytes;
@@ -56,16 +54,4 @@ uint16_t errors::checksum16(char *data, size_t size)
     sum = ~sum;
 
     return sum;
-}
-
-bool errors::check8(char *data, size_t size, uint8_t check)
-// testa se o checksum de 8 bits e valido
-{
-    return (checksum8(data, size) == check);
-}
-
-bool errors::check16(char *data, size_t size, uint16_t check)
-// testa se o checksum de 16 bits e valido
-{
-    return (checksum16(data, size) == check);
 }

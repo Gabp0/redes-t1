@@ -10,7 +10,7 @@ LDLIBS = -lm -lgmp
 # diretorios fonte
 VPATH = ../utils
 
-objs = main.o convolution.o checksum.o bits.o trellis.o
+objs = error_test.o convolution.o checksum.o crc.o bits.o trellis.o
 
 .PHONY: all clean purge
 
@@ -21,8 +21,9 @@ $(TARGET): $(objs)
 	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o $(TARGET)
 
 # compilacao
-main.o: errors.h
+error_test.o: errors.h
 checksum.o: errors.h
+crc.o: errors.h
 convolution.o: errors.h bits.h
 trellis.o: trellis.h bits.h 
 bits.o: bits.h

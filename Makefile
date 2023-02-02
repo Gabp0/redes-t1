@@ -24,7 +24,7 @@ $(TARGET): $(objs)
 main.o: main.cpp githyanki.h
 socket.o: socket.c socket.h
 githyanki.o: githyanki.cpp githyanki.h
-checksum.o: checksum.cpp checksum.h
+checksum.o: errors.h
 connection.o: connection.cpp connection.h githyanki.h
 
 # limpeza

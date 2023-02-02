@@ -12,7 +12,7 @@
 #include <iostream>
 #include "sockets/socket.h"
 #include "githyanki.h"
-#include "checksum.h"
+#include "./error_handling/errors.h"
 
 using namespace std;
 using namespace Githyanki;
@@ -48,23 +48,27 @@ int Connection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buff
 
 void Connection::sendMessage(frame msg)
 {
-    //cout << this->socket << endl;
+    // cout << this->socket << endl;
     char buffer[FRAME_SIZE_MAX];
 
     size_t size = msg.toBytes(buffer);
-    cout << "Size: " << size << endl << endl;
+    cout << "Size: " << size << endl
+         << endl;
     cout << "Frame: " << endl;
 
-    cout<< "Header: ";
-    for(size_t i = 0; i < 4;i++){
-        printf("%x",buffer[i]);
+    cout << "Header: ";
+    for (size_t i = 0; i < 4; i++)
+    {
+        printf("%x", buffer[i]);
     }
     cout << " Data:\"";
-    for(size_t i = 3; i < size -2;i++){
+    for (size_t i = 3; i < size - 2; i++)
+    {
         cout << buffer[i];
     }
-    printf("\" Checksum: %c",buffer[size-1]);
-    cout << endl << endl;
+    printf("\" Checksum: %c", buffer[size - 1]);
+    cout << endl
+         << endl;
 
     ssize_t sent = send(this->socket, buffer, size, 0);
     if (sent > 0)
@@ -73,7 +77,8 @@ void Connection::sendMessage(frame msg)
     }
 }
 
-int Connection::Acknowledge(int sequence){
+int Connection::Acknowledge(int sequence)
+{
     struct frame awk = frame(AWK, sequence);
     char bytes[FRAME_SIZE_MAX];
 
@@ -83,8 +88,9 @@ int Connection::Acknowledge(int sequence){
     return sent;
 }
 
-long long Connection::timestamp() {
+long long Connection::timestamp()
+{
     struct timeval tp;
     gettimeofday(&tp, NULL);
-    return tp.tv_sec*1000 + tp.tv_usec/1000;
+    return tp.tv_sec * 1000 + tp.tv_usec / 1000;
 }

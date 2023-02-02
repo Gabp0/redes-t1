@@ -1,6 +1,6 @@
 #include "githyanki.h"
 #include "sockets/socket.h"
-#include "error_handling/checksum.h"
+#include "error_handling/errors.h"
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
