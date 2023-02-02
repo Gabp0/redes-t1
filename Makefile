@@ -18,14 +18,14 @@ all: $(TARGET)
 
 # ligacao
 $(TARGET): $(objs)
-	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o socket
+	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o $(TARGET)
 
 # compilacao
-main.o: main.cpp githyanki.h
-socket.o: socket.c socket.h
-githyanki.o: githyanki.cpp githyanki.h
+main.o: githyanki.h
+socket.o: socket.h
+githyanki.o: githyanki.h
 checksum.o: errors.h
-connection.o: connection.cpp connection.h githyanki.h
+connection.o: connection.h githyanki.h
 
 # limpeza
 clean:
