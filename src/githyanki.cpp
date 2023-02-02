@@ -105,10 +105,10 @@ Githyanki::DataObject::DataObject()
 
 Githyanki::DataObject::~DataObject()
 {
-    // if (name != NULL)
-    // {
-    //     delete (name);
-    // }
+    if (name != NULL)
+    {
+         delete (name);
+    }
 }
 
 Githyanki::DataObject::DataObject(char *data)
@@ -235,6 +235,18 @@ void sendEndFrame(int seq, Connection *con, char *name, int size)
     con->sendFrame(&endFrame);
 }
 
+int Githyanki::establishConnection(Connection *con)
+{
+    Frame initFrame = Frame(Githyanki::INIT,0);
+    con->sendFrame(&initFrame);
+    Ack ack = con->waitAcknowledge();
+    if(ack.type == Githyanki::AWK && ack.seq == 0)
+        return 1; //Ack
+    }
+    //Timeout
+    return 0;
+}
+
 int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
 {
     // Resolve Conflicts
@@ -291,6 +303,7 @@ Githyanki::DataObject Githyanki::SlidingWindowReceive(Connection *myCon, Connect
 {
     DataObject obj = DataObject();
     Githyanki::Frame *bufferRecieved[256];
+    
     int bufferIndex = 0;
     bool finished = 0;
     Frame *frame;
