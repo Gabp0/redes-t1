@@ -10,48 +10,41 @@ uint8_t errors::checksum8(char *data, size_t size)
 
     for (size_t i = 0; i < size; i++)
     {
-        sum += (uint8_t)data[i];
+        sum += ((uint8_t)data[i]);
 
         // soma o carry
         if (sum >> 8)
         {
-            sum &= 0x00ff;
-            sum += 1;
+            sum = (sum & 0x00ff) + 1;
         }
     }
 
-    sum = ~sum;
-
-    return sum;
+    return ~sum;
 }
 
 uint16_t errors::checksum16(char *data, size_t size)
 // checksum de 16 bits
 {
-    uint32_t sum = 0;
+    uint32_t sum = data[0];
 
-    for (size_t i = 0; i < size; i += 2)
+    size_t s = 1;
+    if ((size % 2) == 0)
     {
-        uint16_t cbytes = data[i];
-        cbytes <<= 8;
+        sum += (uint8_t)data[1];
+        s = 2;
+    }
 
-        if (data[i + 1])
-        {
-            uint8_t nbyte = data[i + 1];
-            cbytes |= nbyte;
-        }
-
+    for (size_t i = s; i < size; i += 2)
+    {
+        uint16_t cbytes = (((uint8_t)data[i]) << 8) | ((uint8_t)data[i + 1]);
         sum += cbytes;
 
         // soma o carry
         if (sum >> 16)
         {
-            sum &= 0x0000ffff;
-            sum += 1;
+            sum = (sum & 0x0000ffff) + 1;
         }
     }
 
-    sum = ~sum;
-
-    return sum;
+    return ~sum;
 }
