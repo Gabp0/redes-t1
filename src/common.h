@@ -9,7 +9,7 @@ using namespace std;
 
 namespace common{
 
-extern fstream log;
+extern fstream lout;
 
 void initLog(string file);
 }

@@ -1,41 +1,154 @@
-Sent: seq - 0
-Sent: seq - 1
-Sent: seq - 2
-Sent: seq - 3
-Sent: seq - 4
-Sent: seq - 5
-Sent: seq - 6
-Sent: seq - 7
-Sent: seq - 8
-Sent: seq - 9
-Sent: seq - 10
-Sent: seq - 11
-Sent: seq - 12
-Sent: seq - 13
-Sent: seq - 14
-Sent: seq - 15
-Sent: seq - 0
-Sent: seq - 1
-Sent: seq - 2
-Sent: seq - 3
-Sent: seq - 4
-Sent: seq - 5
-Sent: seq - 6
-Sent: seq - 7
-Sent: seq - 8
-Sent: seq - 9
-Sent: seq - 10
-Sent: seq - 11
-Sent: seq - 12
-Sent: seq - 13
-Sent: seq - 14
-Sent: seq - 15
-Sent: seq - 0
-Sent: seq - 1
-Sent: seq - 2
-Sent: seq - 3
-Sent: seq - 4
-Sent: seq - 5
-Sent: seq - 6
-Sent: seq - 7
-Sent: seq - 8
+Data frame sended:
+	Type - Text
+	Seq - 0
+Data frame sended:
+	Type - Text
+	Seq - 1
+Data frame sended:
+	Type - Text
+	Seq - 2
+Data frame sended:
+	Type - Text
+	Seq - 3
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+
+Waiting for ack
+	Received
+	Ack: 7
+
+Data frame sended:
+	Type - Text
+	Seq - 8
+Data frame sended:
+	Type - Text
+	Seq - 9
+Data frame sended:
+	Type - Text
+	Seq - 10
+Data frame sended:
+	Type - Text
+	Seq - 11
+Data frame sended:
+	Type - Text
+	Seq - 12
+Data frame sended:
+	Type - Text
+	Seq - 13
+Data frame sended:
+	Type - Text
+	Seq - 14
+Data frame sended:
+	Type - Text
+	Seq - 15
+
+Waiting for ack
+	Received
+	Ack: 15
+
+Data frame sended:
+	Type - Text
+	Seq - 0
+Data frame sended:
+	Type - Text
+	Seq - 1
+Data frame sended:
+	Type - Text
+	Seq - 2
+Data frame sended:
+	Type - Text
+	Seq - 3
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+
+Waiting for ack
+	Received
+	Ack: 7
+
+Data frame sended:
+	Type - Text
+	Seq - 8
+Data frame sended:
+	Type - Text
+	Seq - 9
+Data frame sended:
+	Type - Text
+	Seq - 10
+Data frame sended:
+	Type - Text
+	Seq - 11
+Data frame sended:
+	Type - Text
+	Seq - 12
+Data frame sended:
+	Type - Text
+	Seq - 13
+Data frame sended:
+	Type - Text
+	Seq - 14
+Data frame sended:
+	Type - Text
+	Seq - 15
+
+Waiting for ack
+	Received
+	Ack: 15
+
+Data frame sended:
+	Type - Text
+	Seq - 0
+Data frame sended:
+	Type - Text
+	Seq - 1
+Data frame sended:
+	Type - Text
+	Seq - 2
+Data frame sended:
+	Type - Text
+	Seq - 3
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+
+Waiting for ack
+	Received
+	Ack: 7
+
+End frame sended:
+	Seq - 8
+
+Waiting for ack
+	Received
+	Ack: 8
+
+End frame acked
+Finished

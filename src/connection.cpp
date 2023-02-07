@@ -42,7 +42,7 @@ Frame *Connection::receiveFrame()
     struct timeval timeout = {.tv_sec = 0, .tv_usec = timeoutMillis * 1000};
 
     setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    
+
     do
     {
         bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
@@ -55,7 +55,7 @@ Frame *Connection::receiveFrame()
     } while (timestamp() - comeco <= timeoutMillis);
 
     frameReceived = new Frame(Githyanki::TIMEOUT, 0);
-    log << "Timeout" << endl;
+    lout << "Timeout" << endl;
     return frameReceived;
 }
 
@@ -67,28 +67,26 @@ void Connection::sendFrame(Frame *frame)
     size_t size = frame->toBytes(buffer);
     ssize_t sentSOH = send(this->socket, soh, 16, 0);
     ssize_t sent = send(this->socket, buffer, size, 0);
-    
+
     if (sent > 0 && sentSOH > 0)
-        log << "Sent: seq - " << frame->seq  << endl;
+        lout << (frame->type == Githyanki::END?"End":"Data") << " frame sended:" << (frame->type == Githyanki::END?"":"\n\tType - ") << (frame->type == Githyanki::END?"":(frame->type == Githyanki::TEXT ? "Text" : "Media")) << "\n\tSeq - " << frame->seq << endl;
 }
 
-Githyanki::Ack* Connection::waitAcknowledge()
+Githyanki::Ack *Connection::waitAcknowledge()
 {
     Frame *frame = NULL;
-    Ack *ack = new Ack(0,0);
+    Ack *ack = new Ack(0, 0);
 
-    cout << "waiting for ack" << endl;
+    lout << endl
+         << "Waiting for ack" << endl;
     while (true)
     {
-        // cout << "hey" << endl;
         frame = receiveFrame();
-        // cout << "Wait Ack" << endl
-        //      << frame->toString() << endl;
 
         // Timeout
         if (frame->type == Githyanki::TIMEOUT)
         {
-            cout << "Timeout" << endl;
+            lout << "\tTimeout" << endl;
             ack->seq = 0;
             ack->type = TIMEOUT;
             return ack;
@@ -99,18 +97,22 @@ Githyanki::Ack* Connection::waitAcknowledge()
         {
             ack->seq = frame->seq;
             ack->type = frame->type;
-            cout << "Ack: " << ack->type << " Seq: " << ack->seq << endl;
+            lout << "\tReceived\n\t" << (ack->type == Githyanki::ACK ? "Ack: " : "Nack: ") << ack->seq << endl << endl;
             return ack;
         }
-        // if(frame != NULL)
-        // delete frame;
+
+        if (frame != NULL)
+            delete frame;
     }
 }
 
 int Connection::acknowledge(int sequence, int nawc)
 {
     Frame *ack;
-    cout << "Ack" << endl;
+    lout << endl
+         << "Sending Acknowledge: " << sequence << endl
+         << endl;
+
     if (nawc)
         ack = new Frame(NACK, sequence);
     else

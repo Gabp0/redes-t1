@@ -1,10 +1,10 @@
 #include "common.h"
 
-fstream common::log;
+fstream common::lout;
 
 void common::initLog(string file){
-    log = fstream{file, log.binary | log.trunc | log.in | log.out};
-    if (!log.is_open())
+    lout = fstream{file, lout.binary | lout.trunc | lout.in | lout.out};
+    if (!lout.is_open())
         std::cout << "failed to open " << file << '\n';
     return;
 }

@@ -1,6 +1,163 @@
-Sent: seq - 7
-Sent: seq - 15
-Sent: seq - 7
-Sent: seq - 15
-Sent: seq - 7
-Sent: seq - 8
+Data frame sended:
+	Type - Text
+	Seq - 0
+Data frame sended:
+	Type - Text
+	Seq - 1
+Data frame sended:
+	Type - Text
+	Seq - 2
+Data frame sended:
+	Type - Text
+	Seq - 3
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+
+Sending Acknowledge: 7
+
+Data frame sended:
+	Type - Media
+	Seq - 7
+Data frame sended:
+	Type - Text
+	Seq - 8
+Data frame sended:
+	Type - Text
+	Seq - 9
+Data frame sended:
+	Type - Text
+	Seq - 10
+Data frame sended:
+	Type - Text
+	Seq - 11
+Data frame sended:
+	Type - Text
+	Seq - 12
+Data frame sended:
+	Type - Text
+	Seq - 13
+Data frame sended:
+	Type - Text
+	Seq - 14
+Data frame sended:
+	Type - Text
+	Seq - 15
+
+Sending Acknowledge: 15
+
+Data frame sended:
+	Type - Media
+	Seq - 15
+Data frame sended:
+	Type - Text
+	Seq - 0
+Data frame sended:
+	Type - Text
+	Seq - 1
+Data frame sended:
+	Type - Text
+	Seq - 2
+Data frame sended:
+	Type - Text
+	Seq - 3
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+
+Sending Acknowledge: 7
+
+Data frame sended:
+	Type - Media
+	Seq - 7
+Data frame sended:
+	Type - Text
+	Seq - 8
+Data frame sended:
+	Type - Text
+	Seq - 9
+Data frame sended:
+	Type - Text
+	Seq - 10
+Data frame sended:
+	Type - Text
+	Seq - 11
+Data frame sended:
+	Type - Text
+	Seq - 12
+Data frame sended:
+	Type - Text
+	Seq - 13
+Data frame sended:
+	Type - Text
+	Seq - 14
+Data frame sended:
+	Type - Text
+	Seq - 15
+
+Sending Acknowledge: 15
+
+Data frame sended:
+	Type - Media
+	Seq - 15
+Data frame sended:
+	Type - Text
+	Seq - 0
+Data frame sended:
+	Type - Text
+	Seq - 1
+Data frame sended:
+	Type - Text
+	Seq - 2
+Data frame sended:
+	Type - Text
+	Seq - 3
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+
+Sending Acknowledge: 7
+
+Data frame sended:
+	Type - Media
+	Seq - 7
+Finish frame received
+	Seq - 8
+Acking end frame
+
+Sending Acknowledge: 8
+
+Data frame sended:
+	Type - Media
+	Seq - 8
+
+Flushing Data
+
+Finished

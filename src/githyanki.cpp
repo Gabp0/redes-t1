@@ -14,8 +14,10 @@
 #include <iostream>
 #include <cmath>
 #include "connection.h"
+#include "common.h"
 
 using namespace std;
+using namespace common;
 
 // Frame Stuff
 size_t Githyanki::Frame::toBytes(char *buffer)
@@ -64,11 +66,11 @@ Githyanki::Frame::Frame(const char *data, size_t sizeData, unsigned short type, 
     this->type = type;
     this->seq = seq;
     this->sizeData = sizeData;
-    this->data = new char[sizeData+1];
+    this->data = new char[sizeData + 1];
 
-    memset(this->data, 0, sizeData+1);
+    memset(this->data, 0, sizeData + 1);
     memcpy(this->data, data, this->sizeData);
-    
+
     // cout << data << endl;
     // cout << this->data << endl;
     // Arrumar para o checksum fazer do frame inteiro
@@ -259,10 +261,7 @@ int Githyanki::Window::prepareFrames(Githyanki::DataObject *obj)
 void sendNFrames(int n, Githyanki::Frame **frames, Connection *con)
 {
     for (int i = 0; i < n; i++)
-    {
-        // cout << frames[i]->toString() << endl;
         con->sendFrame(frames[i]);
-    }
 }
 
 // int Githyanki::establishConnection(Connection *con)
@@ -276,17 +275,11 @@ void sendNFrames(int n, Githyanki::Frame **frames, Connection *con)
 //     return 0;
 // }
 
-void flushBuffer(Frame **buffer, int size)
-{
-    for (int i = 0; i < size; i++)
-    {
-        cout << buffer[i]->data;
-        delete buffer[i];
-    }
-}
-
 void flushBuffer(string **buffer, int size)
 {
+    lout << endl
+         << "Flushing Data" << endl
+         << endl;
     for (int i = 0; i < size; i++)
     {
         cout << buffer[i]->data();
@@ -319,7 +312,6 @@ void Githyanki::WindowRec::init()
 
 void Githyanki::WindowRec::finish(Frame *frame)
 {
-    cout << "finish" << endl;
     finished = true;
     if (obj->type == Githyanki::MEDIA)
     {
@@ -375,28 +367,21 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
 
     if (frame->type == Githyanki::END)
     {
+        lout << "Finish frame received\n\tSeq - " << frame->seq << endl;
+
         finishedSeq = frame->seq;
         finish(frame);
     }
     else
     {
+        lout << "Data frame sended:\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "Media") << "\n\tSeq - " << frame->seq << endl;
+
         string *data = new string(frame->data);
-        // cout << endl
-        //      << frame->toString() << endl;
-        // cout << windowDataSize << endl;
-        // cout << data->data() << endl;
         windowData[windowPlace->posi % 256] = data;
         windowDataSize++;
-
         lastDataIndex++;
         lastSeq = (lastSeq + 1) % Githyanki::WINDOW_MAX;
     }
-
-    // for (place a : windowPlace)
-    // {
-    //     cout << "Seq: " << a.seq << " Posi: " << a.posi << " Window Sec Index: " << windowSeqIndex << endl;
-    // }
-    // cout << endl;
 
     for (int i = windowSeqIndex; i < Githyanki::SEND_WINDOW_MAX - 1; i++)
         windowPlace[i] = windowPlace[i + 1];
@@ -404,7 +389,6 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     windowPlace[Githyanki::SEND_WINDOW_MAX - 1] = place(lastSeq, lastDataIndex);
     firstSeq = windowPlace[0].seq;
 
-    // cout << "Last ack: " << lastAck << " fisrtSeq " << firstSeq << " Window Sec Index: " << windowSeqIndex << endl;
     if (ackIf(firstSeq, lastAck, Githyanki::WINDOW_MAX, Githyanki::SEND_WINDOW_MAX))
     {
         lastAck = (lastAck + 8) % 16;
@@ -416,6 +400,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         int distFinish = distWindow(finishedSeq + 1, lastAck, Githyanki::WINDOW_MAX);
         if (ackIf(firstSeq, lastAck, Githyanki::WINDOW_MAX, distFinish))
         {
+            lout << "Acking end frame" << endl;
             obj->otherCon->acknowledge(finishedSeq);
             lastAck = finishedSeq;
         }
@@ -451,8 +436,8 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
         window.bufferFrame(frame);
     }
 
-    cout << "finished" << endl;
     flushBuffer(window.windowData, window.windowDataSize);
+    lout << "Finished" << endl;
 
     return window.obj;
 }
@@ -471,12 +456,6 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
     obj->frameQty = ceil(sizeof(obj->data) / Githyanki::DATA_SIZE_MAX);
 
     sendingFrames = window.prepareFrames(obj);
-    // cout << sendingFrames << endl;
-    // for (Frame *f : window.frames)
-    // {
-    //     cout << f->toString() << endl
-    //          << endl;
-    // }
 
     while (sendingFrames > 0)
     {
@@ -488,12 +467,15 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
         if (ack->type != Githyanki::TIMEOUT)
         {
             if (window.finishSeq == ack->seq)
+            {
+                lout << "End frame acked" << endl;
                 break;
+            }
             window.acknowledge(ack);
             sendingFrames = window.prepareFrames(obj);
         }
-        // cout << myCon->receiveFrame()->toString() << endl;
     }
+    lout << "Finished";
 
     return 1;
 }
