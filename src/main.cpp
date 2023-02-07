@@ -11,37 +11,10 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option)
         return std::find(begin, end, option) != end;
 }
 
-// void oldSend(Connection c)
-// {
-//         cout << "sending" << endl;
-
-//         char txt[] = "não aguento mais esse trabalho";
-//         Githyanki::Frame f = Githyanki::Frame(txt, sizeof(txt), Githyanki::TEXT, 0);
-
-//         cout << f.toString() << endl;
-//         Githyanki::printFrame(&f);
-//         c.sendFrame(&f);
-// }
-
-// void oldReceive(Connection c)
-// {
-//         cout << "receiving" << endl;
-//         char buffer[Githyanki::FRAME_SIZE_MAX];
-
-//         size_t size = c.receiveMessage(10000, buffer, Githyanki::FRAME_SIZE_MAX);
-//         cout << size << endl;
-
-//         Githyanki::Frame f = {};
-//         f.fromBytes(buffer);
-//         printFrame(&f);
-//         cout << f.toString() << endl;
-// }
-
-
 int main(int argc, char **argv)
 {
-        Connection serverCon("lo");
-        Connection clientCon("lo1");
+        Connection serverCon("lo1");
+        Connection clientCon("lo");
 
         if (cmdOptionExists(argv, argv + argc, "-s"))
         {
