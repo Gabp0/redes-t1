@@ -20,7 +20,7 @@ public:
     int acknowledge(int sequence, int nawc = 0);
     Githyanki::Ack* waitAcknowledge();
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
-    void sendFrame(Githyanki::Frame *msg);
+    void sendFrame(Githyanki::Frame *frame);
     Githyanki::Frame* receiveFrame();
 };
 

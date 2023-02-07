@@ -12,8 +12,10 @@
 #include <iostream>
 #include "sockets/socket.h"
 #include "githyanki.h"
+#include "common.h"
 
 using namespace std;
+using namespace common;
 using namespace Githyanki;
 
 Connection::Connection(string device)
@@ -33,13 +35,14 @@ Frame *Connection::receiveFrame()
     Frame *frameReceived = new Frame();
 
     int timeoutMillis = 5000;
+    int bytes_lidos;
     char buffer[Githyanki::FRAME_SIZE_MAX];
     int tamanho_buffer = Githyanki::FRAME_SIZE_MAX;
-
     long long comeco = timestamp();
     struct timeval timeout = {.tv_sec = 0, .tv_usec = timeoutMillis * 1000};
+
     setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    int bytes_lidos;
+    
     do
     {
         bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
@@ -47,29 +50,26 @@ Frame *Connection::receiveFrame()
         {
             bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
         }
-        if (Githyanki::isValid(buffer, tamanho_buffer, frameReceived))
+        if (Githyanki::isValid(buffer, bytes_lidos, frameReceived))
             return frameReceived;
     } while (timestamp() - comeco <= timeoutMillis);
 
     frameReceived = new Frame(Githyanki::TIMEOUT, 0);
-    cout << "Timeout" << endl;
+    log << "Timeout" << endl;
     return frameReceived;
 }
 
-void Connection::sendFrame(Frame *msg)
+void Connection::sendFrame(Frame *frame)
 {
-    // cout << this->socket << endl;
     char buffer[FRAME_SIZE_MAX];
     char soh[16] = "63";
 
-    size_t size = msg->toBytes(buffer);
+    size_t size = frame->toBytes(buffer);
     ssize_t sentSOH = send(this->socket, soh, 16, 0);
     ssize_t sent = send(this->socket, buffer, size, 0);
-    // cout << sentSOH << " " << sent << endl;
-    // if (sent > 0 && sentSOH > 0)
-    // {
-    //     cout << "sent" << endl;
-    // }
+    
+    if (sent > 0 && sentSOH > 0)
+        log << "Sent: seq - " << frame->seq  << endl;
 }
 
 Githyanki::Ack* Connection::waitAcknowledge()
@@ -80,10 +80,10 @@ Githyanki::Ack* Connection::waitAcknowledge()
     cout << "waiting for ack" << endl;
     while (true)
     {
-        cout << "hey" << endl;
+        // cout << "hey" << endl;
         frame = receiveFrame();
-        cout << "Wait Ack" << endl
-             << frame->toString() << endl;
+        // cout << "Wait Ack" << endl
+        //      << frame->toString() << endl;
 
         // Timeout
         if (frame->type == Githyanki::TIMEOUT)
@@ -109,14 +109,14 @@ Githyanki::Ack* Connection::waitAcknowledge()
 
 int Connection::acknowledge(int sequence, int nawc)
 {
-    Frame ack;
+    Frame *ack;
     cout << "Ack" << endl;
     if (nawc)
-        ack = Frame(NACK, sequence);
+        ack = new Frame(NACK, sequence);
     else
-        ack = Frame(ACK, sequence);
+        ack = new Frame(ACK, sequence);
 
-    sendFrame(&ack);
+    sendFrame(ack);
     return 1;
 }
 

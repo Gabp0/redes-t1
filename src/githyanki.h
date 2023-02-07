@@ -59,12 +59,13 @@ namespace Githyanki
     unsigned short type : 4;
     unsigned short seq : 4;
     unsigned short sizeData : 8;
-    char data[DATA_SIZE_MAX];
+    char *data;
     char checksum[CHECK_SIZE];
 
+    ~Frame();
     Frame();
     Frame(unsigned short type, unsigned short seq);
-    Frame(const char *data, size_t data_size, unsigned short type, unsigned short seq);
+    Frame(const char *data, size_t sizeData, unsigned short type, unsigned short seq);
     string toString();
     size_t toBytes(char *buffer);
     void fromBytes(void *bytes);
