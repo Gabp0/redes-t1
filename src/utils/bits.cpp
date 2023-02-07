@@ -1,6 +1,6 @@
 #include "bits.h"
 #include <vector>
-#include <iostream>
+#include <random>
 
 using namespace std;
 using namespace bits;
@@ -26,14 +26,20 @@ vector<bit> bits::fromChar(char *data, size_t size)
 char *bits::flip(char *data, size_t size)
 // flipa bits aleatorios para testar
 {
-    vector<bit> input = fromChar(data, size);
+    vector<bit> data_bits = fromChar(data, size);
 
-    input.at(size / 4) = !input.at(size / 4);
-    input.at(size * 3 / 4) = !input.at(size * 3 / 4);
-    input.at(size / 20) = !input.at(size / 20);
-    input.at(size * 9 / 10) = !input.at(size * 9 / 10);
+    // random number generator
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distr(0, data_bits.size());
 
-    return toChar(input);
+    for (size_t i = 0; i < (data_bits.size() / 25); i++)
+    {
+        int pos = distr(gen);
+        data_bits.at(pos) = !data_bits.at(pos);
+    }
+
+    return toChar(data_bits);
 }
 
 char *bits::toChar(vector<bit> input)
