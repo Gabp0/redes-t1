@@ -4,11 +4,9 @@
 #include <string>
 #include <bitset>
 
-
-
 using namespace std;
 
-//Nao pode dar include no Connection.h por causa de include ciclico entao fazemos apenas a assinatura do Connection
+// Nao pode dar include no Connection.h por causa de include ciclico entao fazemos apenas a assinatura do Connection
 class Connection;
 // Global Intelligent Technology Handling Yielding Advanced Network Knowledge Interface Protocol
 namespace Githyanki
@@ -18,7 +16,7 @@ namespace Githyanki
   static const short DATA_SIZE_MAX = 253;
   static const short CHECK_SIZE = 1;
   static const short WINDOW_MAX = 16;
-  static const short SEND_WINDOW_MAX = WINDOW_MAX/2;
+  static const short SEND_WINDOW_MAX = WINDOW_MAX / 2;
 
   // MSG
   static const short SUCESS = 200;
@@ -37,17 +35,23 @@ namespace Githyanki
   // Types
   static const short TEXT = 0x01;
   static const short MEDIA = 0x10;
-  static const short AWK = 0x0A;
-  static const short NACK = 0x00;
+  static const short ACK = 0x0A;
+  static const short NACK = 0x15;
   static const short ERROR = 0x1E;
   static const short INIT = 0x1D;
   static const short END = 0x0F;
   static const short DATA = 0x0D;
 
-  struct Ack{
-    //Ack or Nack
+  static const short VALID_TYPES[] = {TEXT, MEDIA, ACK, NACK, ERROR, INIT, END, DATA};
+
+  struct Ack
+  {
+    // Ack or Nack
     unsigned short type;
     unsigned short seq;
+
+    Ack(){};
+    Ack(unsigned short t, unsigned short s) : type(t), seq(s){};
   };
 
   struct Frame
@@ -73,7 +77,7 @@ namespace Githyanki
     int bytesFramed;
     int size;
 
-    char *name;  
+    char *name;
     int nameSize;
 
     short type;
@@ -87,22 +91,56 @@ namespace Githyanki
     DataObject(char *data, char *name);
   };
 
-  struct Window{
+  struct Window
+  {
     int window[SEND_WINDOW_MAX];
     Frame *frames[SEND_WINDOW_MAX];
 
-    int lastSeq; //Next sequence thats not in use
+    int lastSeq; // Next sequence thats not in use
     int firstNotFramedIndex;
+    int finishSeq;
 
-    void acknowledge(Ack ack);
+    int prepareFrames(Githyanki::DataObject *obj);
+    void acknowledge(Ack *ack);
+    void init();
+  };
+
+  struct place
+  {
+    int seq;
+    int posi;
+
+    place(){};
+    place(int s, int p) : seq(s), posi(p){};
+  };
+
+  struct WindowRec
+  {
+    place windowPlace[SEND_WINDOW_MAX];
+    string *windowData[256];
+    Frame *frames[256];
+
+    DataObject *obj;
+
+    int lastAck;
+    int windowDataSize;
+    int firstSeq;
+    int lastSeq;     // Next sequence thats not in use
+    int lastDataIndex;
+    int finishedSeq;
+    bool finished;
+    bool finishedAcked;
+
+    void finish(Frame *frame);
+    void bufferFrame(Frame *frame);
     void init();
   };
 
   int sendText();
-  int establishConnection();
+  int establishConnection(Connection *con);
   int SlidingWindowSend(Githyanki::DataObject *obj);
-  Githyanki::DataObject SlidingWindowReceive(Connection *myCon, Connection *otherCon);
-  void printFrame(Githyanki::Frame  *f);
+  Githyanki::DataObject *SlidingWindowReceive(Connection *myCon, Connection *otherCon);
+  void printFrame(Githyanki::Frame *f);
   unsigned short checksum(unsigned short *buff, int _16bitword);
   int isValid(char *buffer, int tamanho_buffer, Frame *frame);
 };
