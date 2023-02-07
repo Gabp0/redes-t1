@@ -36,17 +36,22 @@ namespace Githyanki
   static const short TEXT = 0x01;
   static const short MEDIA = 0x10;
   static const short ACK = 0x0A;
-  static const short NACK = 0x00;
+  static const short NACK = 0x15;
   static const short ERROR = 0x1E;
   static const short INIT = 0x1D;
   static const short END = 0x0F;
   static const short DATA = 0x0D;
+
+  static const short VALID_TYPES[] = {TEXT, MEDIA, ACK, NACK, ERROR, INIT, END, DATA};
 
   struct Ack
   {
     // Ack or Nack
     unsigned short type;
     unsigned short seq;
+
+    Ack(){};
+    Ack(unsigned short t, unsigned short s) : type(t), seq(s){};
   };
 
   struct Frame
@@ -93,8 +98,10 @@ namespace Githyanki
 
     int lastSeq; // Next sequence thats not in use
     int firstNotFramedIndex;
+    int finishSeq;
 
-    void acknowledge(Ack ack);
+    int prepareFrames(Githyanki::DataObject *obj);
+    void acknowledge(Ack *ack);
     void init();
   };
 
@@ -116,13 +123,13 @@ namespace Githyanki
     DataObject *obj;
 
     int lastAck;
-    int notAck;
     int windowDataSize;
     int firstSeq;
     int lastSeq;     // Next sequence thats not in use
-    int windowIndex; //
     int lastDataIndex;
+    int finishedSeq;
     bool finished;
+    bool finishedAcked;
 
     void finish(Frame *frame);
     void bufferFrame(Frame *frame);

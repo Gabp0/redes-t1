@@ -32,7 +32,7 @@ Frame *Connection::receiveFrame()
 {
     Frame *frameReceived = new Frame();
 
-    int timeoutMillis = 10000;
+    int timeoutMillis = 5000;
     char buffer[Githyanki::FRAME_SIZE_MAX];
     int tamanho_buffer = Githyanki::FRAME_SIZE_MAX;
 
@@ -43,76 +43,81 @@ Frame *Connection::receiveFrame()
     do
     {
         bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
-        if (bytes_lidos == 1 && buffer[0] == Githyanki::SOH)
+        if (buffer[0] == Githyanki::SOH)
         {
             bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
         }
         if (Githyanki::isValid(buffer, tamanho_buffer, frameReceived))
             return frameReceived;
     } while (timestamp() - comeco <= timeoutMillis);
-    return new Frame(Githyanki::TIMEOUT, 0);
+
+    frameReceived = new Frame(Githyanki::TIMEOUT, 0);
+    cout << "Timeout" << endl;
+    return frameReceived;
 }
 
 void Connection::sendFrame(Frame *msg)
 {
     // cout << this->socket << endl;
     char buffer[FRAME_SIZE_MAX];
-    char soh[1];
-    soh[0] = Githyanki::SOH;
+    char soh[16] = "63";
 
     size_t size = msg->toBytes(buffer);
-    ssize_t sentSOH = send(this->socket, soh, 1, 0);
+    ssize_t sentSOH = send(this->socket, soh, 16, 0);
     ssize_t sent = send(this->socket, buffer, size, 0);
-    if (sent > 0 && sentSOH > 0)
-    {
-        cout << "sent" << endl;
-    }
+    // cout << sentSOH << " " << sent << endl;
+    // if (sent > 0 && sentSOH > 0)
+    // {
+    //     cout << "sent" << endl;
+    // }
 }
 
-Githyanki::Ack Connection::waitAcknowledge()
+Githyanki::Ack* Connection::waitAcknowledge()
 {
-    char buffer[Githyanki::FRAME_SIZE_MAX];
-    Frame *frame;
+    Frame *frame = NULL;
+    Ack *ack = new Ack(0,0);
 
+    cout << "waiting for ack" << endl;
     while (true)
     {
+        cout << "hey" << endl;
         frame = receiveFrame();
         cout << "Wait Ack" << endl
              << frame->toString() << endl;
 
-        Githyanki::Frame f = {};
-        f.fromBytes(buffer);
-
         // Timeout
         if (frame->type == Githyanki::TIMEOUT)
         {
-            Ack ack = {.type = TIMEOUT, .seq = 0};
+            cout << "Timeout" << endl;
+            ack->seq = 0;
+            ack->type = TIMEOUT;
             return ack;
         }
 
         // Frame received not Acknowledge
-        if (f.type == Githyanki::ACK || f.type == Githyanki::NACK)
+        if (frame->type == Githyanki::ACK || frame->type == Githyanki::NACK)
         {
-            Ack ack = {.type = f.type, .seq = f.seq};
+            ack->seq = frame->seq;
+            ack->type = frame->type;
+            cout << "Ack: " << ack->type << " Seq: " << ack->seq << endl;
             return ack;
         }
-        delete frame;
+        // if(frame != NULL)
+        // delete frame;
     }
 }
 
 int Connection::acknowledge(int sequence, int nawc)
 {
     Frame ack;
+    cout << "Ack" << endl;
     if (nawc)
         ack = Frame(NACK, sequence);
     else
         ack = Frame(ACK, sequence);
-    char bytes[FRAME_SIZE_MAX];
 
-    size_t size = ack.toBytes(bytes);
-
-    ssize_t sent = send(this->socket, bytes, size, 0);
-    return sent;
+    sendFrame(&ack);
+    return 1;
 }
 
 long long Connection::timestamp()
