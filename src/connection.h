@@ -17,7 +17,7 @@ private:
 public:
     Connection(string device);
     ~Connection(void);
-    int acknowledge(int sequence);
+    int acknowledge(int sequence, int nawc = 0);
     Githyanki::Ack waitAcknowledge();
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
     void sendFrame(Githyanki::Frame *msg);

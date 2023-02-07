@@ -28,24 +28,8 @@ Connection::~Connection(void)
     close(this->socket);
 }
 
-// int Connection::receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer)
-// {
-//     long long comeco = timestamp();
-//     struct timeval timeout = {.tv_sec = 0, .tv_usec = timeoutMillis * 1000};
-//     setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-//     int bytes_lidos;
-//     do
-//     {
-//         bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
-//         if (Githyanki::isValid(buffer, bytes_lidos, NULL))
-//         {
-//             return bytes_lidos;
-//         }
-//     } while (timestamp() - comeco <= timeoutMillis);
-//     return -1;
-// }
-
-Frame* Connection::receiveFrame(){
+Frame *Connection::receiveFrame()
+{
     Frame *frameReceived = new Frame();
 
     int timeoutMillis = 10000;
@@ -63,8 +47,8 @@ Frame* Connection::receiveFrame(){
         {
             bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
         }
-        if(Githyanki::isValid(buffer, tamanho_buffer, frameReceived))
-        return frameReceived;
+        if (Githyanki::isValid(buffer, tamanho_buffer, frameReceived))
+            return frameReceived;
     } while (timestamp() - comeco <= timeoutMillis);
     return new Frame(Githyanki::TIMEOUT, 0);
 }
@@ -77,21 +61,6 @@ void Connection::sendFrame(Frame *msg)
     soh[0] = Githyanki::SOH;
 
     size_t size = msg->toBytes(buffer);
-
-    // cout << "Size: " << size << endl << endl;
-    // cout << "Frame: " << endl;
-
-    // cout<< "Header: ";
-    // for(size_t i = 0; i < 4;i++){
-    //     printf("%x",buffer[i]);
-    // }
-    // cout << " Data:\"";
-    // for(size_t i = 3; i < size -2;i++){
-    //     cout << buffer[i];
-    // }
-    // printf("\" Checksum: %c",buffer[size-1]);
-    // cout << endl << endl;
-
     ssize_t sentSOH = send(this->socket, soh, 1, 0);
     ssize_t sent = send(this->socket, buffer, size, 0);
     if (sent > 0 && sentSOH > 0)
@@ -108,7 +77,8 @@ Githyanki::Ack Connection::waitAcknowledge()
     while (true)
     {
         frame = receiveFrame();
-        cout << "Wait Ack"<< endl<<frame->toString() << endl;
+        cout << "Wait Ack" << endl
+             << frame->toString() << endl;
 
         Githyanki::Frame f = {};
         f.fromBytes(buffer);
@@ -121,7 +91,7 @@ Githyanki::Ack Connection::waitAcknowledge()
         }
 
         // Frame received not Acknowledge
-        if (f.type == Githyanki::AWK || f.type == Githyanki::NACK)
+        if (f.type == Githyanki::ACK || f.type == Githyanki::NACK)
         {
             Ack ack = {.type = f.type, .seq = f.seq};
             return ack;
@@ -130,12 +100,16 @@ Githyanki::Ack Connection::waitAcknowledge()
     }
 }
 
-int Connection::acknowledge(int sequence)
+int Connection::acknowledge(int sequence, int nawc)
 {
-    Frame awk = Frame(AWK, sequence);
+    Frame ack;
+    if (nawc)
+        ack = Frame(NACK, sequence);
+    else
+        ack = Frame(ACK, sequence);
     char bytes[FRAME_SIZE_MAX];
 
-    size_t size = awk.toBytes(bytes);
+    size_t size = ack.toBytes(bytes);
 
     ssize_t sent = send(this->socket, bytes, size, 0);
     return sent;

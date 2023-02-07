@@ -107,7 +107,7 @@ Githyanki::DataObject::~DataObject()
 {
     if (name != NULL)
     {
-         delete (name);
+        delete (name);
     }
 }
 
@@ -144,7 +144,7 @@ void Githyanki::Window::acknowledge(Githyanki::Ack ack)
     int iBuffer = 0;
     int j = 0; // Quantity of not acked frames
 
-    if (ack.type == Githyanki::AWK)
+    if (ack.type == Githyanki::ACK)
     {
         ack.seq++;
     }
@@ -184,7 +184,6 @@ void Githyanki::Window::init()
 }
 
 // Window Stuff
-
 int prepareFrames(Githyanki::Window *win, Githyanki::DataObject *obj)
 {
     char dataBuffer[Githyanki::DATA_SIZE_MAX];
@@ -237,13 +236,12 @@ void sendEndFrame(int seq, Connection *con, char *name, int size)
 
 int Githyanki::establishConnection(Connection *con)
 {
-    Frame initFrame = Frame(Githyanki::INIT,0);
+    Frame initFrame = Frame(Githyanki::INIT, 0);
     con->sendFrame(&initFrame);
     Ack ack = con->waitAcknowledge();
-    if(ack.type == Githyanki::AWK && ack.seq == 0)
-        return 1; //Ack
-    }
-    //Timeout
+    if (ack.type == Githyanki::ACK && ack.seq == 0)
+        return 1; // Ack
+    // Timeout
     return 0;
 }
 
@@ -299,51 +297,127 @@ void flushBuffer(Frame **buffer, int size)
     }
 }
 
-Githyanki::DataObject Githyanki::SlidingWindowReceive(Connection *myCon, Connection *otherCon)
+void flushBuffer(string **buffer, int size)
 {
-    DataObject obj = DataObject();
-    Githyanki::Frame *bufferRecieved[256];
-    
-    int bufferIndex = 0;
-    bool finished = 0;
-    Frame *frame;
-
-    while (!finished)
+    for (int i = 0; i < size; i++)
     {
-        frame = new Frame();
-        frame = myCon->receiveFrame();
-        // cout << frame->toString() << endl;
-        if (frame->type != Githyanki::TIMEOUT)
-        {
-            if (frame->type == Githyanki::END)
-            {
-                finished = !finished;
-                if (obj.type == Githyanki::MEDIA)
-                {
-                    char *name = new char[Githyanki::DATA_SIZE_MAX];
-                    memcpy(name, frame->data, frame->sizeData);
-                    obj.name = name;
-                    obj.nameSize = frame->sizeData;
-                }
-            }
-            else
-            {
-                bufferRecieved[bufferIndex] = frame;
-                if (obj.type == 0)
-                {
-                    obj.type = frame->type;
-                }
-                bufferIndex++;
-                if (bufferIndex >= 6)
-                {
-                    flushBuffer(bufferRecieved, bufferIndex);
-                    bufferIndex = 0;
-                }
-            }
-        }
+        cout << buffer[i];
+        delete buffer[i];
+    }
+}
+
+void Githyanki::WindowRec::init()
+{
+    int i = 0;
+    for (; i < Githyanki::SEND_WINDOW_MAX; i++)
+    {
+        windowPlace[i] = place(i, i);
+    }
+    lastSeq = i - 1;
+    lastDataIndex = i - 1;
+    firstSeq = 0;
+    finished = 0;
+    windowDataSize = 0;
+    notAck = 0;
+    lastAck = -1;
+
+    obj = new DataObject();
+    obj->bytesFramed = 0;
+    obj->data = new char[1024];
+    obj->size = 0;
+}
+
+void Githyanki::WindowRec::finish(Frame *frame)
+{
+    finished = !finished;
+    if (obj->type == Githyanki::MEDIA)
+    {
+        char *name = new char[Githyanki::DATA_SIZE_MAX];
+        memcpy(name, frame->data, frame->sizeData);
+        obj->name = name;
+        obj->nameSize = frame->sizeData;
+    }
+}
+
+void Githyanki::WindowRec::bufferFrame(Frame *frame)
+{
+    if (frame->type != Githyanki::TIMEOUT){
+        obj->otherCon->acknowledge(firstSeq, 1);
+        lastAck = (firstSeq + 15) % 16;
+        return;
     }
 
-    flushBuffer(bufferRecieved, bufferIndex);
+    if (frame->type == Githyanki::END)
+    {
+        finish(frame);
+        return;
+    }
 
-    return obj;
+    if (obj->type == 0)
+        obj->type = frame->type;
+
+    if(!(frame->seq >= firstSeq) || !(frame->seq <= lastSeq))
+        return;
+    
+    int windowSeqIndex;
+    for(int i = 0; i < Githyanki::SEND_WINDOW_MAX; i++){
+        if(windowPlace[i].seq == frame->seq){
+            windowSeqIndex = i;
+            break;
+        } 
+        if(windowPlace[i].seq > frame->seq)
+        return;
+    }
+    
+    string *data = new string(frame->data);
+    windowData[windowPlace->posi % 256] = data;
+    windowDataSize++;
+
+    lastDataIndex++;
+    lastSeq = (lastSeq + 1) % Githyanki::WINDOW_MAX;
+
+    for(int i = windowSeqIndex; Githyanki::SEND_WINDOW_MAX - 1; i++){
+        windowPlace[windowSeqIndex] = windowPlace[windowSeqIndex+1];
+    }
+
+    windowPlace[Githyanki::SEND_WINDOW_MAX - 1] = place(lastSeq, lastDataIndex);
+    firstSeq = windowPlace[0].seq;
+    
+    if(firstSeq - lastAck >= Githyanki::SEND_WINDOW_MAX/2){
+        obj->otherCon->acknowledge(frame->seq);
+        lastAck = frame->seq;
+    }
+
+    delete frame;
+    
+    if (windowDataSize >= 7)
+    {
+        flushBuffer(windowData, windowDataSize);
+        windowDataSize = 0;        
+    }
+}
+
+Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connection *otherCon)
+{
+    WindowRec window = {};
+    window.init();
+    window.obj->myCon = myCon;
+    window.obj->otherCon = otherCon;
+
+    Frame *frame;
+
+    while (!window.finished)
+    {
+        cout << "hello" << endl;
+        frame = new Frame();
+        frame = myCon->receiveFrame();
+        cout << frame->toString() << endl;
+
+        //window.bufferFrame(frame);
+        
+    }
+    
+    flushBuffer(window.windowData, window.windowDataSize);
+
+    return window.obj;
 }
