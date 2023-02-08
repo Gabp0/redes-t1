@@ -78,12 +78,16 @@ namespace common
         common::lout << endl
                      << "Flushing Data" << endl
                      << endl;
-        for (int i = 0; i < size; i++)
+        for (int i = 1; i <= size; i++)
         {
             if (buffer[i] != NULL && buffer[i]->data != NULL)
             {
                 common::fout << buffer[i]->data;
                 safe_delete(buffer[i]);
+            }
+            else
+            {
+                cout << " NULL " << i << endl;
             }
         }
         cout << endl;

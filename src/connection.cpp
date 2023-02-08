@@ -43,7 +43,8 @@ Frame *Connection::receiveFrame()
     long long comeco = timestamp();
     struct timeval timeout = {.tv_sec = timeoutMillis / 1000, .tv_usec = (timeoutMillis % 1000) * 1000};
     setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-
+    lout << endl
+         << "Reading socket" << endl;
     do
     {
         bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
@@ -54,6 +55,7 @@ Frame *Connection::receiveFrame()
         if (Githyanki::isValid(buffer, bytes_lidos, frameReceived))
         {
             timeoutMillis = timeoutMin;
+            frameReceived->toString();
             return frameReceived;
         }
     } while (timestamp() - comeco <= timeoutMillis);

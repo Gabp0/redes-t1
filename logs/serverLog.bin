@@ -24,7 +24,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: 	Received
 	Ack: 7
 
 Data frame sended:
@@ -53,7 +55,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -82,7 +86,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -111,7 +117,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -140,7 +148,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -169,7 +179,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -198,7 +210,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -227,36 +241,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
-	Nack: 8
 
-Data frame sended:
-	Type - Text
-	Seq - 8
-Data frame sended:
-	Type - Text
-	Seq - 9
-Data frame sended:
-	Type - Text
-	Seq - 10
-Data frame sended:
-	Type - Text
-	Seq - 11
-Data frame sended:
-	Type - Text
-	Seq - 12
-Data frame sended:
-	Type - Text
-	Seq - 13
-Data frame sended:
-	Type - Text
-	Seq - 14
-Data frame sended:
-	Type - Text
-	Seq - 15
-
-Waiting for ack
-	Received
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -285,7 +272,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -314,7 +303,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -343,7 +334,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -372,7 +365,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -401,7 +396,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -430,7 +427,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -459,7 +458,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -488,7 +489,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -517,7 +520,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -546,7 +551,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -575,7 +582,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -604,7 +613,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -633,7 +644,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -662,7 +675,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -691,7 +706,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -720,7 +737,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -749,7 +768,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -778,7 +799,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -807,7 +830,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -836,7 +861,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -865,7 +892,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -894,7 +923,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -923,36 +954,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
-	Nack: 0
 
-Data frame sended:
-	Type - Text
-	Seq - 0
-Data frame sended:
-	Type - Text
-	Seq - 1
-Data frame sended:
-	Type - Text
-	Seq - 2
-Data frame sended:
-	Type - Text
-	Seq - 3
-Data frame sended:
-	Type - Text
-	Seq - 4
-Data frame sended:
-	Type - Text
-	Seq - 5
-Data frame sended:
-	Type - Text
-	Seq - 6
-Data frame sended:
-	Type - Text
-	Seq - 7
-
-Waiting for ack
-	Received
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -981,36 +985,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
-	Nack: 8
 
-Data frame sended:
-	Type - Text
-	Seq - 8
-Data frame sended:
-	Type - Text
-	Seq - 9
-Data frame sended:
-	Type - Text
-	Seq - 10
-Data frame sended:
-	Type - Text
-	Seq - 11
-Data frame sended:
-	Type - Text
-	Seq - 12
-Data frame sended:
-	Type - Text
-	Seq - 13
-Data frame sended:
-	Type - Text
-	Seq - 14
-Data frame sended:
-	Type - Text
-	Seq - 15
-
-Waiting for ack
-	Received
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1039,7 +1016,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1068,7 +1047,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1097,7 +1078,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1126,7 +1109,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1155,7 +1140,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1184,7 +1171,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1213,7 +1202,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1242,7 +1233,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1271,7 +1264,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1300,7 +1295,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1329,7 +1326,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1358,7 +1357,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1387,7 +1388,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1416,7 +1419,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1445,7 +1450,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1474,7 +1481,9 @@ Data frame sended:
 	Seq - 15
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 15 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 15
 
 Data frame sended:
@@ -1503,7 +1512,9 @@ Data frame sended:
 	Seq - 7
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 10 Seq: 7 DataSize: 14 Data:  Checksum: a	Received
 	Ack: 7
 
 Data frame sended:
@@ -1522,7 +1533,9 @@ End frame sended:
 	Seq - 12
 
 Waiting for ack
-	Received
+
+Reading socket
+Type: 11 Seq: 13 DataSize: 14 Data:  Checksum: a	Received
 	Nack: 13
 
 Finished

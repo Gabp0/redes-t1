@@ -65,7 +65,7 @@ namespace Githyanki
     Frame();
     Frame(unsigned short type, unsigned short seq);
     Frame(const char *data, size_t sizeData, unsigned short type, unsigned short seq);
-    string toString();
+    void toString();
     size_t toBytes(char *buffer);
     void fromBytes(void *bytes);
   };
@@ -127,7 +127,7 @@ namespace Githyanki
   struct WindowRec
   {
     place *windowPlace[SEND_WINDOW_MAX];
-    DataBlock *windowData[256];
+    DataBlock *windowData[257];
 
     DataObject *obj;
 

@@ -31,14 +31,14 @@ int main(int argc, char **argv)
                 msg.size = text.size();
                 msg.bytesFramed = 0;
 
-                serverCon.setTimeout(3000);
+                serverCon.setTimeout(2000);
                 common::initLog("logs/serverLog.bin");
 
                 Githyanki::SlidingWindowSend(&msg);
         }
         else if (cmdOptionExists(argv, argv + argc, "-r"))
         {
-                clientCon.setTimeout(2000);
+                clientCon.setTimeout(1000);
                 common::initLog("logs/clientLog.bin");
                 common::initFile("logs/buffer.bin");
                 Githyanki::SlidingWindowReceive(&clientCon, &serverCon);

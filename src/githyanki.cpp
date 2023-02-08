@@ -92,28 +92,29 @@ Githyanki::Frame::Frame()
     data = NULL;
 }
 
-// string Githyanki::Frame::toString()
-// {
-//     //"Mark: " + to_string(mark) +
-//     return "\nType: " + to_string(type) + " Seq: " + to_string(seq); //+ " DataSize: " + to_string(sizeData) + " Data: " + data + " Checksum: " + checksum;
-// }
-
-int Githyanki::isValid(char *buffer, int tamanho_buffer, Frame *frame)
+void Githyanki::Frame::toString()
 {
-    int valid = 0;
+    if (this->data == NULL)
+    {
+        lout << "NULL Frame" << endl;
+        lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData;
+        return;
+    }
+    DataBlock data = DataBlock(this->data, sizeData);
+    lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData << " Data: " << data.data << " Checksum: " << checksum;
+}
 
-    if (tamanho_buffer > 16)
-        frame->fromBytes(buffer);
+Githyanki::DataBlock::~DataBlock()
+{
+    safe_delete(data);
+}
 
-    for (int i = 0; i < (int)sizeof(VALID_TYPES); i++)
-        if (frame->type == VALID_TYPES[i])
-            valid = 1;
-
-    if (!valid)
-        return 0;
-    // Check frame
-
-    return 1;
+Githyanki::DataBlock::DataBlock(char *data, int size)
+{
+    this->data = new char[size + 1];
+    this->size = size;
+    memcpy(this->data, data, size);
+    memcpy(this->data + size, "\0", 1);
 }
 
 // DataObject (Struct)
@@ -146,6 +147,25 @@ Githyanki::DataObject::DataObject(char *data, char *name)
         this->nameSize = Githyanki::DATA_SIZE_MAX;
     else
         this->nameSize = sizeof(name);
+}
+
+int Githyanki::isValid(char *buffer, int tamanho_buffer, Frame *frame)
+{
+    int valid = 0;
+
+    if (tamanho_buffer > 16)
+        frame->fromBytes(buffer);
+
+    for (int i = 0; i < (int)sizeof(VALID_TYPES); i++)
+        if (frame->type == VALID_TYPES[i])
+            valid = 1;
+
+    if (frame->data == NULL)
+        return 0;
+
+    // Check frame
+
+    return valid;
 }
 
 // int Githyanki::establishConnection(Connection *con)
@@ -244,7 +264,7 @@ void Githyanki::WindowRec::acknowledge()
             safe_delete(windowPlace[i]);
             break;
         }
-        
+
         safe_delete(windowPlace[i]);
     }
 
@@ -278,7 +298,6 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         return;
     }
 
-    
     // Find seq in windowPlace
     int windowSeqIndex = -1;
     for (int i = 0; i < Githyanki::SEND_WINDOW_MAX; i++)
@@ -328,8 +347,9 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         lout << "Data frame received:\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "Media") << "\n\tSeq - " << frame->seq << endl;
 
         DataBlock *data = new DataBlock(frame->data, frame->sizeData);
-        fout << data->data;
-        // windowData[windowPlace[windowSeqIndex]->posi % 256] = data;
+        // fout << data->data;
+        //  cout << windowPlace[windowSeqIndex]->posi << endl;
+        windowData[windowPlace[windowSeqIndex]->posi + 1] = data;
         windowDataSize++;
         windowPlace[windowSeqIndex]->received = true;
         receivedFrames++;
@@ -340,9 +360,9 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
 
     safe_delete(frame);
 
-    if (windowDataSize >= 255)
+    if (windowDataSize == 256)
     {
-        // flushBuffer(windowData, windowDataSize);
+        flushBuffer(windowData, windowDataSize);
         windowDataSize = 0;
     }
 }
@@ -361,12 +381,12 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
         frame = new Frame();
         frame = myCon->receiveFrame();
 
-        // if (randomChance(50))
+        // if (randomChance(97))
         window.bufferFrame(frame);
     }
 
     lout << "Finished" << endl;
-    // flushBuffer(window.windowData, window.windowDataSize);
+    flushBuffer(window.windowData, window.windowDataSize);
 
     return window.obj;
 }
@@ -495,16 +515,4 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
     lout << "Finished";
 
     return 1;
-}
-
-Githyanki::DataBlock::~DataBlock()
-{
-    safe_delete(data);
-}
-
-Githyanki::DataBlock::DataBlock(char *data, int size)
-{
-    this->data = new char[size + 1];
-    memcpy(this->data, data, size);
-    memcpy(this->data + size, "\0", 1);
 }
