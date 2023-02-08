@@ -381,7 +381,7 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
         frame = new Frame();
         frame = myCon->receiveFrame();
 
-        // if (randomChance(97))
+        if (randomChance(95))
         window.bufferFrame(frame);
     }
 
