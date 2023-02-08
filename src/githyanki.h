@@ -20,7 +20,6 @@ namespace Githyanki
 
   // MSG
   static const short SUCESS = 200;
-  static const short TIMEOUT = 201;
   static const short NO_CONECTION = 202;
   static const short INV_CMD = 203;
   static const short FAILURE = 204;
@@ -33,16 +32,16 @@ namespace Githyanki
   static const short SOH = 0x3F;
 
   // Types
-  static const short TEXT = 0x01;
-  static const short MEDIA = 0x10;
-  static const short ACK = 0x0A;
-  static const short NACK = 0x15;
-  static const short ERROR = 0x1E;
-  static const short INIT = 0x1D;
-  static const short END = 0x0F;
-  static const short DATA = 0x0D;
+  static const short TEXT = 0x1;    // 1
+  static const short MEDIA = 0x2;   // 2
+  static const short ERROR = 0x9;   // 9
+  static const short ACK = 0xA;     // 10
+  static const short NACK = 0xB;    // 11
+  static const short TIMEOUT = 0xD; // 13
+  static const short INIT = 0xE;    // 14
+  static const short END = 0xF;     // 15
 
-  static const short VALID_TYPES[] = {TEXT, MEDIA, ACK, NACK, ERROR, INIT, END, DATA};
+  static const short VALID_TYPES[] = {TEXT, MEDIA, ACK, NACK, ERROR, INIT, END, TIMEOUT};
 
   struct Ack
   {
@@ -99,9 +98,10 @@ namespace Githyanki
 
     int lastSeq; // Next sequence thats not in use
     int firstNotFramedIndex;
-    int finishSeq;
+    int endSeq;
+    int sendingFrames;
 
-    int prepareFrames(Githyanki::DataObject *obj);
+    void prepareFrames(Githyanki::DataObject *obj);
     void acknowledge(Ack *ack);
     void init();
   };
@@ -110,30 +110,30 @@ namespace Githyanki
   {
     int seq;
     int posi;
+    bool received;
 
-    place(){};
-    place(int s, int p) : seq(s), posi(p){};
+    place(int s, int p) : seq(s), posi(p) { received = false; };
   };
 
   struct WindowRec
   {
-    place windowPlace[SEND_WINDOW_MAX];
+    place *windowPlace[SEND_WINDOW_MAX];
     string *windowData[256];
-    Frame *frames[256];
 
     DataObject *obj;
 
     int lastAck;
     int windowDataSize;
     int firstSeq;
-    int lastSeq;     // Next sequence thats not in use
+    int lastSeq; // Next sequence thats not in use
     int lastDataIndex;
-    int finishedSeq;
-    bool finished;
+    int endSeq;
     bool finishedAcked;
+    int receivedFrames;
 
     void finish(Frame *frame);
     void bufferFrame(Frame *frame);
+    void acknowledge();
     void init();
   };
 

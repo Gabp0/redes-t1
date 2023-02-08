@@ -1,55 +1,65 @@
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 0
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 1
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 2
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 3
-Data frame sended:
-	Type - Text
-	Seq - 4
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 5
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 6
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 7
+Timeout * 2
+Socket Timeout
 
-Sending Acknowledge: 7
+Sending N-Acknowledge: 4
 
 Data frame sended:
 	Type - Media
-	Seq - 7
-Data frame sended:
+	Seq - 4
+Data frame received:
 	Type - Text
-	Seq - 8
-Data frame sended:
-	Type - Text
-	Seq - 9
-Data frame sended:
+	Seq - 4
+Data frame received:
 	Type - Text
 	Seq - 10
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 11
+Timeout * 2
+Socket Timeout
+
+Sending N-Acknowledge: 8
+
 Data frame sended:
+	Type - Media
+	Seq - 8
+Data frame received:
+	Type - Text
+	Seq - 8
+Data frame received:
+	Type - Text
+	Seq - 9
+Data frame received:
 	Type - Text
 	Seq - 12
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 13
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 14
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 15
 
@@ -58,106 +68,110 @@ Sending Acknowledge: 15
 Data frame sended:
 	Type - Media
 	Seq - 15
-Data frame sended:
-	Type - Text
-	Seq - 0
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 1
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 2
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 3
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 4
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 5
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 6
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 7
+Timeout * 2
+Socket Timeout
+Data frame received:
+	Type - Text
+	Seq - 0
 
 Sending Acknowledge: 7
 
 Data frame sended:
 	Type - Media
 	Seq - 7
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 8
-Data frame sended:
-	Type - Text
-	Seq - 9
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 10
-Data frame sended:
-	Type - Text
-	Seq - 11
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 12
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 13
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 14
-Data frame sended:
+Data frame received:
 	Type - Text
 	Seq - 15
+Timeout * 3
+Socket Timeout
 
-Sending Acknowledge: 15
+Sending N-Acknowledge: 9
 
 Data frame sended:
 	Type - Media
-	Seq - 15
-Data frame sended:
+	Seq - 9
+Data frame received:
+	Type - Text
+	Seq - 9
+Data frame received:
+	Type - Text
+	Seq - 11
+Data frame received:
 	Type - Text
 	Seq - 0
-Data frame sended:
-	Type - Text
-	Seq - 1
-Data frame sended:
-	Type - Text
-	Seq - 2
-Data frame sended:
-	Type - Text
-	Seq - 3
-Data frame sended:
-	Type - Text
-	Seq - 4
-Data frame sended:
-	Type - Text
-	Seq - 5
-Data frame sended:
-	Type - Text
-	Seq - 6
-Data frame sended:
-	Type - Text
-	Seq - 7
 
-Sending Acknowledge: 7
+Sending Acknowledge: 0
 
 Data frame sended:
 	Type - Media
+	Seq - 0
+Data frame received:
+	Type - Text
+	Seq - 1
+Data frame received:
+	Type - Text
+	Seq - 2
+Data frame received:
+	Type - Text
+	Seq - 3
+Data frame received:
+	Type - Text
+	Seq - 4
+Data frame received:
+	Type - Text
+	Seq - 5
+Data frame received:
+	Type - Text
+	Seq - 6
+Data frame received:
+	Type - Text
 	Seq - 7
 Finish frame received
 	Seq - 8
-Acking end frame
+
 
 Sending Acknowledge: 8
 
 Data frame sended:
 	Type - Media
 	Seq - 8
+Finished
 
 Flushing Data
 
-Finished

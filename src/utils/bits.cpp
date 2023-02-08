@@ -24,7 +24,6 @@ vector<bit> bits::fromChar(char *data, size_t size)
 char *bits::toChar(vector<bit> input)
 {
     char *output = new char[input.size()];
-    // cout << data_bits.size() << endl;
 
     char cbyte = 0x0;
     int counter = 0;
@@ -36,7 +35,6 @@ char *bits::toChar(vector<bit> input)
         if (counter == 8)
         {
             output[i] = cbyte;
-            // cout << cbyte << endl;
             counter = 0;
             cbyte = 0x0;
             i++;

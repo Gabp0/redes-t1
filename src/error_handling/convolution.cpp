@@ -21,7 +21,6 @@ char *convolution::code(char *data, size_t size)
         bit c0 = (in != s1);
         bit c1 = (c0 != s0);
 
-        // cout << "in: " << in << " s0: " << s0 << " s1: " << s1 << " c0: " << c0 << " c1: " << c1 << endl;
 
         s1 = s0;
         s0 = in;

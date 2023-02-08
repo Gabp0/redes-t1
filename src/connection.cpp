@@ -18,6 +18,9 @@ using namespace std;
 using namespace common;
 using namespace Githyanki;
 
+int timeoutMillis = 5000;
+int timeoutMin = 5000;
+
 Connection::Connection(string device)
 {
     char *device_c = new char[device.length() + 1];
@@ -34,13 +37,11 @@ Frame *Connection::receiveFrame()
 {
     Frame *frameReceived = new Frame();
 
-    int timeoutMillis = 5000;
     int bytes_lidos;
-    char buffer[Githyanki::FRAME_SIZE_MAX];
+    char buffer[Githyanki::FRAME_SIZE_MAX] = "";
     int tamanho_buffer = Githyanki::FRAME_SIZE_MAX;
     long long comeco = timestamp();
-    struct timeval timeout = {.tv_sec = 0, .tv_usec = timeoutMillis * 1000};
-
+    struct timeval timeout = {.tv_sec = timeoutMillis / 1000, .tv_usec = (timeoutMillis % 1000) * 1000};
     setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
 
     do
@@ -51,17 +52,29 @@ Frame *Connection::receiveFrame()
             bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
         }
         if (Githyanki::isValid(buffer, bytes_lidos, frameReceived))
+        {
+            timeoutMillis = timeoutMin;
             return frameReceived;
+        }
     } while (timestamp() - comeco <= timeoutMillis);
 
-    frameReceived = new Frame(Githyanki::TIMEOUT, 0);
-    lout << "Timeout" << endl;
+    frameReceived->type = Githyanki::TIMEOUT;
+    int t = randomBetween(2, 3);
+    lout << "Timeout * " << t << endl;
+    timeoutMillis *= t;
+    lout << "Socket Timeout" << endl;
     return frameReceived;
+}
+
+void Connection::setTimeout(int timeout)
+{
+    timeoutMin = timeout;
+    timeoutMillis = timeoutMin;
 }
 
 void Connection::sendFrame(Frame *frame)
 {
-    char buffer[FRAME_SIZE_MAX];
+    char buffer[FRAME_SIZE_MAX] = "";
     char soh[16] = "63";
 
     size_t size = frame->toBytes(buffer);
@@ -69,7 +82,7 @@ void Connection::sendFrame(Frame *frame)
     ssize_t sent = send(this->socket, buffer, size, 0);
 
     if (sent > 0 && sentSOH > 0)
-        lout << (frame->type == Githyanki::END?"End":"Data") << " frame sended:" << (frame->type == Githyanki::END?"":"\n\tType - ") << (frame->type == Githyanki::END?"":(frame->type == Githyanki::TEXT ? "Text" : "Media")) << "\n\tSeq - " << frame->seq << endl;
+        lout << (frame->type == Githyanki::END ? "End" : "Data") << " frame sended:" << (frame->type == Githyanki::END ? "" : "\n\tType - ") << (frame->type == Githyanki::END ? "" : (frame->type == Githyanki::TEXT ? "Text" : "Media")) << "\n\tSeq - " << frame->seq << endl;
 }
 
 Githyanki::Ack *Connection::waitAcknowledge()
@@ -83,42 +96,42 @@ Githyanki::Ack *Connection::waitAcknowledge()
     {
         frame = receiveFrame();
 
-        // Timeout
-        if (frame->type == Githyanki::TIMEOUT)
-        {
-            lout << "\tTimeout" << endl;
-            ack->seq = 0;
-            ack->type = TIMEOUT;
-            return ack;
-        }
-
-        // Frame received not Acknowledge
-        if (frame->type == Githyanki::ACK || frame->type == Githyanki::NACK)
-        {
-            ack->seq = frame->seq;
-            ack->type = frame->type;
-            lout << "\tReceived\n\t" << (ack->type == Githyanki::ACK ? "Ack: " : "Nack: ") << ack->seq << endl << endl;
-            return ack;
-        }
-
         if (frame != NULL)
+        {
+            // Timeout
+            if (frame->type == Githyanki::TIMEOUT)
+            {
+                lout << "\tTimeout" << endl
+                     << endl;
+                ack->seq = 0;
+                ack->type = TIMEOUT;
+                return ack;
+            }
+
+            // Frame received not Acknowledge
+            if (frame->type == Githyanki::ACK || frame->type == Githyanki::NACK)
+            {
+                ack->seq = frame->seq;
+                ack->type = frame->type;
+                lout << "\tReceived\n\t" << (ack->type == Githyanki::ACK ? "Ack: " : "Nack: ") << ack->seq << endl
+                     << endl;
+                return ack;
+            }
             delete frame;
+        }
     }
 }
 
-int Connection::acknowledge(int sequence, int nawc)
+int Connection::acknowledge(Ack ack)
 {
-    Frame *ack;
+    Frame *ackFrame;
     lout << endl
-         << "Sending Acknowledge: " << sequence << endl
+         << "Sending " << (ack.type == Githyanki::NACK ? "N-A" : "A") << "cknowledge: " << ack.seq << endl
          << endl;
 
-    if (nawc)
-        ack = new Frame(NACK, sequence);
-    else
-        ack = new Frame(ACK, sequence);
+    ackFrame = new Frame(ack.type, ack.seq);
+    sendFrame(ackFrame);
 
-    sendFrame(ack);
     return 1;
 }
 
@@ -127,4 +140,10 @@ long long Connection::timestamp()
     struct timeval tp;
     gettimeofday(&tp, NULL);
     return tp.tv_sec * 1000 + tp.tv_usec / 1000;
+}
+
+void Connection::sendNFrames(int n, Githyanki::Frame **frames)
+{
+    for (int i = 0; i < n; i++)
+        sendFrame(frames[i]);
 }

@@ -25,7 +25,36 @@ Data frame sended:
 
 Waiting for ack
 	Received
-	Ack: 7
+	Nack: 4
+
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+Data frame sended:
+	Type - Text
+	Seq - 8
+Data frame sended:
+	Type - Text
+	Seq - 9
+Data frame sended:
+	Type - Text
+	Seq - 10
+Data frame sended:
+	Type - Text
+	Seq - 11
+
+Waiting for ack
+	Received
+	Nack: 8
 
 Data frame sended:
 	Type - Text
@@ -55,6 +84,36 @@ Data frame sended:
 Waiting for ack
 	Received
 	Ack: 15
+
+Data frame sended:
+	Type - Text
+	Seq - 0
+Data frame sended:
+	Type - Text
+	Seq - 1
+Data frame sended:
+	Type - Text
+	Seq - 2
+Data frame sended:
+	Type - Text
+	Seq - 3
+Data frame sended:
+	Type - Text
+	Seq - 4
+Data frame sended:
+	Type - Text
+	Seq - 5
+Data frame sended:
+	Type - Text
+	Seq - 6
+Data frame sended:
+	Type - Text
+	Seq - 7
+
+Waiting for ack
+Timeout * 3
+Socket Timeout
+	Timeout
 
 Data frame sended:
 	Type - Text
@@ -112,11 +171,37 @@ Data frame sended:
 
 Waiting for ack
 	Received
-	Ack: 15
+	Nack: 9
 
 Data frame sended:
 	Type - Text
+	Seq - 9
+Data frame sended:
+	Type - Text
+	Seq - 10
+Data frame sended:
+	Type - Text
+	Seq - 11
+Data frame sended:
+	Type - Text
+	Seq - 12
+Data frame sended:
+	Type - Text
+	Seq - 13
+Data frame sended:
+	Type - Text
+	Seq - 14
+Data frame sended:
+	Type - Text
+	Seq - 15
+Data frame sended:
+	Type - Text
 	Seq - 0
+
+Waiting for ack
+	Received
+	Ack: 0
+
 Data frame sended:
 	Type - Text
 	Seq - 1
@@ -138,11 +223,6 @@ Data frame sended:
 Data frame sended:
 	Type - Text
 	Seq - 7
-
-Waiting for ack
-	Received
-	Ack: 7
-
 End frame sended:
 	Seq - 8
 
@@ -150,5 +230,4 @@ Waiting for ack
 	Received
 	Ack: 8
 
-End frame acked
 Finished

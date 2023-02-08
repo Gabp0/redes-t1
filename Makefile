@@ -24,8 +24,8 @@ $(TARGET): $(objs)
 main.o: main.cpp connection.h githyanki.h common.h
 socket.o: socket.c socket.h
 common.o: common.cpp common.h
-githyanki.o: githyanki.cpp githyanki.h connection.h
-connection.o: connection.cpp connection.h githyanki.h
+githyanki.o: githyanki.cpp githyanki.h connection.h common.h
+connection.o: connection.cpp connection.h githyanki.h 
 
 # limpeza
 clean:

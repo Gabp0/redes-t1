@@ -17,11 +17,14 @@ private:
 public:
     Connection(string device);
     ~Connection(void);
-    int acknowledge(int sequence, int nawc = 0);
+    int acknowledge(Ack ack);
     Githyanki::Ack* waitAcknowledge();
     int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
     void sendFrame(Githyanki::Frame *frame);
     Githyanki::Frame* receiveFrame();
+    void setTimeout(int timeout);
+    // Send first n frames from *frames
+    void sendNFrames(int n, Githyanki::Frame **frames);
 };
 
 #endif
