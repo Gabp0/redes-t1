@@ -1,5 +1,8 @@
 socket
 
+# Logs
+*.bin
+
 # Prerequisites
 *.d
 
