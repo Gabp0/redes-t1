@@ -18,7 +18,7 @@ all: $(TARGET)
 
 # ligacao
 $(TARGET): $(objs)
-	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o socket
+	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o $(TARGET)
 
 # compilacao
 main.o: main.cpp connection.h githyanki.h common.h
@@ -31,5 +31,5 @@ connection.o: connection.cpp connection.h githyanki.h
 clean:
 	-rm -f $(objs) *~
 purge: clean
-	-rm -f rgps
+	-rm -f $(TARGET)
 
