@@ -54,11 +54,7 @@ void Githyanki::Frame::fromBytes(void *bytes)
 
 Githyanki::Frame::~Frame()
 {
-    if (data != NULL)
-    {
-        delete data;
-        data = NULL;
-    }
+    safe_delete(data);
 }
 
 Githyanki::Frame::Frame(const char *data, size_t sizeData, unsigned short type, unsigned short seq)
@@ -96,11 +92,11 @@ Githyanki::Frame::Frame()
     data = NULL;
 }
 
-string Githyanki::Frame::toString()
-{
-    //"Mark: " + to_string(mark) +
-    return "\nType: " + to_string(type) + " Seq: " + to_string(seq); //+ " DataSize: " + to_string(sizeData) + " Data: " + data + " Checksum: " + checksum;
-}
+// string Githyanki::Frame::toString()
+// {
+//     //"Mark: " + to_string(mark) +
+//     return "\nType: " + to_string(type) + " Seq: " + to_string(seq); //+ " DataSize: " + to_string(sizeData) + " Data: " + data + " Checksum: " + checksum;
+// }
 
 int Githyanki::isValid(char *buffer, int tamanho_buffer, Frame *frame)
 {
@@ -129,10 +125,7 @@ Githyanki::DataObject::DataObject()
 
 Githyanki::DataObject::~DataObject()
 {
-    if (name != NULL)
-    {
-        delete (name);
-    }
+    safe_delete(name);
 }
 
 Githyanki::DataObject::DataObject(char *data)
@@ -203,18 +196,6 @@ void Githyanki::WindowRec::acknowledge()
 {
     Ack *ack = NULL;
 
-    // if (endSeq > -1)
-    // {
-    //     if (receivedFrames == distWindow(firstSeq, lastAck, Githyanki::WINDOW_MAX))
-    //     {
-    //         ack = new Ack(Githyanki::ACK, endSeq);
-    //         obj->otherCon->acknowledge(*ack);
-    //         lastAck = endSeq;
-    //         delete ack;
-    //         return;
-    //     }
-    // }
-
     // ACK
     if (receivedFrames == Githyanki::SEND_WINDOW_MAX)
     {
@@ -253,7 +234,6 @@ void Githyanki::WindowRec::acknowledge()
         lastSeq = (lastSeq + 1) % Githyanki::WINDOW_MAX;
         lastDataIndex = (lastDataIndex + 1) % 256;
         buffer[iBuffer] = new place(lastSeq, lastDataIndex);
-        delete windowPlace[i];
         iBuffer++;
         receivedFrames--;
 
@@ -261,8 +241,11 @@ void Githyanki::WindowRec::acknowledge()
         if (windowPlace[i]->seq == ack->seq && ack->type == Githyanki::ACK)
         {
             i++;
+            safe_delete(windowPlace[i]);
             break;
         }
+        
+        safe_delete(windowPlace[i]);
     }
 
     // Deslocate not acked
@@ -274,9 +257,7 @@ void Githyanki::WindowRec::acknowledge()
         windowPlace[j + i] = buffer[i];
 
     firstSeq = windowPlace[0]->seq;
-
-
-    delete ack;
+    safe_delete(ack);
 }
 
 void Githyanki::WindowRec::bufferFrame(Frame *frame)
@@ -286,17 +267,18 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     if (frame->type == Githyanki::TIMEOUT)
     {
         acknowledge();
-        delete frame;
+        safe_delete(frame);
         return;
     }
 
     // Reject non protocol frames
     if (!(frame->type == Githyanki::TEXT) && !(frame->type == Githyanki::MEDIA) && !(frame->type == Githyanki::END))
     {
-        delete frame;
+        safe_delete(frame);
         return;
     }
 
+    
     // Find seq in windowPlace
     int windowSeqIndex = -1;
     for (int i = 0; i < Githyanki::SEND_WINDOW_MAX; i++)
@@ -316,7 +298,13 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     // Not found reject
     if (windowSeqIndex == -1)
     {
-        delete frame;
+        safe_delete(frame);
+        return;
+    }
+
+    if (frame->data == NULL)
+    {
+        safe_delete(frame);
         return;
     }
 
@@ -339,9 +327,9 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     {
         lout << "Data frame received:\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "Media") << "\n\tSeq - " << frame->seq << endl;
 
-        string *data = new string(frame->data);
-        data->append("\0");
-        windowData[windowPlace[windowSeqIndex]->posi % 256] = data;
+        DataBlock *data = new DataBlock(frame->data, frame->sizeData);
+        fout << data->data;
+        // windowData[windowPlace[windowSeqIndex]->posi % 256] = data;
         windowDataSize++;
         windowPlace[windowSeqIndex]->received = true;
         receivedFrames++;
@@ -350,11 +338,11 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     if (receivedFrames == Githyanki::SEND_WINDOW_MAX)
         acknowledge();
 
-    delete frame;
+    safe_delete(frame);
 
     if (windowDataSize >= 255)
     {
-        flushBuffer(windowData, windowDataSize);
+        // flushBuffer(windowData, windowDataSize);
         windowDataSize = 0;
     }
 }
@@ -373,12 +361,12 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
         frame = new Frame();
         frame = myCon->receiveFrame();
 
-        if (randomChance(90))
+        // if (randomChance(50))
         window.bufferFrame(frame);
     }
 
     lout << "Finished" << endl;
-    flushBuffer(window.windowData, window.windowDataSize);
+    // flushBuffer(window.windowData, window.windowDataSize);
 
     return window.obj;
 }
@@ -404,7 +392,6 @@ void Githyanki::Window::acknowledge(Githyanki::Ack *ack)
     int j;           // Quantity of not acked frames
     int i;           // Frames passed
 
-
     for (i = 0; i < Githyanki::SEND_WINDOW_MAX; i++)
     {
         if (window[i] == ack->seq && ack->type == Githyanki::NACK)
@@ -413,7 +400,7 @@ void Githyanki::Window::acknowledge(Githyanki::Ack *ack)
         // Ack frame
         lastSeq = (lastSeq + 1) % Githyanki::WINDOW_MAX;
         buffer[iBuffer] = lastSeq;
-        delete (frames[i]);
+        safe_delete(frames[i]);
         iBuffer++;
         sendingFrames--;
 
@@ -435,7 +422,7 @@ void Githyanki::Window::acknowledge(Githyanki::Ack *ack)
     }
 
     firstNotFramedIndex = j;
-    delete ack;
+    safe_delete(ack);
 }
 
 // Window Stuff
@@ -508,4 +495,16 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
     lout << "Finished";
 
     return 1;
+}
+
+Githyanki::DataBlock::~DataBlock()
+{
+    safe_delete(data);
+}
+
+Githyanki::DataBlock::DataBlock(char *data, int size)
+{
+    this->data = new char[size + 1];
+    memcpy(this->data, data, size);
+    memcpy(this->data + size, "\0", 1);
 }

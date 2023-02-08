@@ -115,10 +115,19 @@ namespace Githyanki
     place(int s, int p) : seq(s), posi(p) { received = false; };
   };
 
+  struct DataBlock
+  {
+    char *data;
+    int size;
+
+    ~DataBlock();
+    DataBlock(char *data, int size);
+  };
+
   struct WindowRec
   {
     place *windowPlace[SEND_WINDOW_MAX];
-    string *windowData[256];
+    DataBlock *windowData[256];
 
     DataObject *obj;
 

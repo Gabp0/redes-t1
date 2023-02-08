@@ -117,7 +117,7 @@ Githyanki::Ack *Connection::waitAcknowledge()
                      << endl;
                 return ack;
             }
-            delete frame;
+            safe_delete(frame);
         }
     }
 }

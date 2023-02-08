@@ -1,7 +1,9 @@
 #include "common.h"
 #include <ctime>
+#include "githyanki.h"
 
 fstream common::lout;
+fstream common::fout;
 
 namespace common
 {
@@ -58,15 +60,31 @@ namespace common
         return 0;
     }
 
-    void flushBuffer(string **buffer, int size)
+    void initFile(string file)
+    {
+        fout = fstream{file, fout.binary | fout.trunc | fout.in | fout.out};
+        if (!fout.is_open())
+            std::cout << "failed to open " << file << '\n';
+        return;
+    }
+
+    void closeFile()
+    {
+        fout.close();
+    }
+
+    void flushBuffer(Githyanki::DataBlock **buffer, int size)
     {
         common::lout << endl
                      << "Flushing Data" << endl
                      << endl;
         for (int i = 0; i < size; i++)
         {
-            cout << buffer[i]->data();
-            delete buffer[i];
+            if (buffer[i] != NULL && buffer[i]->data != NULL)
+            {
+                common::fout << buffer[i]->data;
+                safe_delete(buffer[i]);
+            }
         }
         cout << endl;
     }
