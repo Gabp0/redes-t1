@@ -11,6 +11,9 @@ class Connection;
 // Global Intelligent Technology Handling Yielding Advanced Network Knowledge Interface Protocol
 namespace Githyanki
 {
+  // Chance to not receive frame
+  static const short chanceLostFrame = 5; 
+
   // Sizes
   static const short FRAME_SIZE_MAX = 256;
   static const short DATA_SIZE_MAX = 253;
