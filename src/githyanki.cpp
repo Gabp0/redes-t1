@@ -96,12 +96,12 @@ void Githyanki::Frame::toString()
 {
     if (this->data == NULL)
     {
-        lout << "NULL Frame" << endl;
-        lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData;
+        // lout << "NULL Frame" << endl;
+        // lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData;
         return;
     }
     DataBlock data = DataBlock(this->data, sizeData);
-    lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData << " Data: " << data.data << " Checksum: " << checksum;
+    // lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData << " Data: " << data.data << " Checksum: " << checksum;
 }
 
 Githyanki::DataBlock::~DataBlock()

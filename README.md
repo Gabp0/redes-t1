@@ -5,7 +5,7 @@
 * Rodrigo Saviam Soffner - GRR20205092
 
 ## Compilação:
-* O arquivo **Makefile** faz a compilação a partir do comando *make*, além de incluir funções *purge* e *purge* para limpeza, gerando o executável **socket**.
+* O arquivo **Makefile** faz a compilação a partir do comando *make*, além de incluir funções *purge* e *purge* para limpeza, gerando o executável **rawSocket**.
 * 5% de frames perdido default, possível mudar no githyanki.h, chanceToReceive const.
 
 ## Execução:
