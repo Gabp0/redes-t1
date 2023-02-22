@@ -10,7 +10,7 @@ LDLIBS = -lm -lgmp
 # diretorios fonte
 VPATH = src:src/sockets:src/error_handling
 
-objs = main.o githyanki.o connection.o common.o socket.o
+objs = main.o githyanki.o connection.o common.o socket.o crc.o
 
 .PHONY: all clean purge
 
@@ -24,9 +24,9 @@ $(TARGET): $(objs)
 main.o: main.cpp connection.h githyanki.h common.h
 socket.o: socket.c socket.h
 common.o: common.cpp common.h
-githyanki.o: githyanki.cpp githyanki.h connection.h common.h
+githyanki.o: githyanki.cpp githyanki.h connection.h common.h errors.h
 connection.o: connection.cpp connection.h githyanki.h 
-checksum.o: errors.h
+crc.o: crc.cpp errors.h
 
 
 # limpeza

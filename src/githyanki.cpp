@@ -16,6 +16,7 @@
 #include <cmath>
 #include "connection.h"
 #include "common.h"
+#include "error_handling/errors.h"
 
 using namespace std;
 using namespace common;
@@ -42,7 +43,7 @@ int Githyanki::isValid(char *buffer, int tamanho_buffer, Frame *frame)
 // Frame Stuff
 size_t Githyanki::Frame::toBytes(char *buffer)
 {
-    size_t size = sizeData + 3;
+    size_t size = sizeData + Githyanki::HEADER_SIZE + Githyanki::CHECK_SIZE;
     int offset = 0;
 
     char headerA = type << 4;
@@ -52,14 +53,14 @@ size_t Githyanki::Frame::toBytes(char *buffer)
     buffer[0] = headerA;
     buffer[1] = headerB;
 
-    memcpy(&buffer[3], this->data, this->sizeData);
-    if (size < 16)
+    memcpy(&buffer[Githyanki::HEADER_SIZE], this->data, this->sizeData);
+    if (size < Githyanki::MINIMUM_FRAME_SIZE)
     {
-        offset = 17 - size;
-        memset(&buffer[3 + this->sizeData], 0, offset);
+        offset = Githyanki::MINIMUM_FRAME_SIZE - size;
+        memset(&buffer[size], 0, offset);
         size += offset;
     }
-    // memcpy(&buffer[size], &this->checksum, 1);
+    memcpy(&buffer[size - 2], &this->checksum, Githyanki::CHECK_SIZE);
 
     return size;
 }
@@ -68,15 +69,64 @@ void Githyanki::Frame::fromBytes(void *bytes)
 {
     if (bytes)
     {
+        int size = Githyanki::HEADER_SIZE;
         char *msg = (char *)bytes;
 
         type = msg[0] >> 4;
         seq = msg[0] & 0xF;
         sizeData = msg[1];
+        size += sizeData;
         data = new char[sizeData];
-        memcpy(data, &msg[3], this->sizeData);
-        // memcpy(&this->checksum, &msg[this->sizeData + 4], 1);
+        memcpy(data, &msg[Githyanki::HEADER_SIZE], this->sizeData);
+        if (sizeData < Githyanki::MINIMUM_FRAME_SIZE)
+            size = Githyanki::MINIMUM_FRAME_SIZE - Githyanki::CHECK_SIZE;
+
+        memcpy(&this->checksum, &msg[size], Githyanki::CHECK_SIZE);
     }
+}
+
+int Githyanki::Frame::checkError()
+{
+    char buffer[Githyanki::FRAME_SIZE_MAX];
+    int size = 0;
+
+    char headerA = type << 4;
+    headerA = headerA | seq;
+    char headerB = sizeData;
+
+    buffer[0] = headerA;
+    buffer[1] = headerB;
+    size += Githyanki::HEADER_SIZE;
+
+    // cout << sizeData << endl;
+    memcpy(&buffer[size], data, sizeData);
+    size += sizeData;
+    memcpy(&buffer[size], checksum, Githyanki::CHECK_SIZE);
+    size += Githyanki::CHECK_SIZE;
+    
+    if (errors::crc16(buffer, size) == 0)
+        return 1;
+    return 0;
+}
+
+void Githyanki::Frame::calcError()
+{
+    char buffer[Githyanki::FRAME_SIZE_MAX];
+    int size = 0;
+
+    char headerA = type << 4;
+    headerA = headerA | seq;
+    char headerB = sizeData;
+
+    buffer[0] = headerA;
+    buffer[1] = headerB;
+    size += Githyanki::HEADER_SIZE;
+
+    memcpy(&buffer[size], this->data, this->sizeData);
+    size += sizeData;
+    uint16_t crc16 = errors::crc16(buffer, size);
+    checksum[0] = (crc16 >> 8);
+    checksum[1] = (crc16 & 0xFF);
 }
 
 Githyanki::Frame::~Frame()
@@ -93,25 +143,15 @@ Githyanki::Frame::Frame(const char *data, size_t sizeData, unsigned short type, 
 
     memset(this->data, 0, sizeData + 1);
     memcpy(this->data, data, this->sizeData);
-
-    // Arrumar para o checksum fazer do frame inteiro
-    // char * buffer;
-    // strtol(calcCheckSum(data).c_str(), &buffer, 2);
-    // strncpy(this->checksum, buffer, 1);
-    checksum[0] = 'a';
+    this->calcError();
 }
 
 Githyanki::Frame::Frame(unsigned short type, unsigned short seq)
 {
-    // mark = Githyanki::SOH;
     this->type = type;
     this->seq = seq;
-    data = new char[14];
-    this->sizeData = 14;
-    memset(this->data, 0, 14);
-
-    // Arrumar para o checksum fazer do frame inteiro
-    // memcpy(this->checksum, calcCheckSum(data).c_str(), 8);
+    this->sizeData = 0;
+    this->calcError();
 }
 
 Githyanki::Frame::Frame()
@@ -119,17 +159,17 @@ Githyanki::Frame::Frame()
     data = NULL;
 }
 
-void Githyanki::Frame::toString()
-{
-    if (this->data == NULL)
-    {
-        // lout << "NULL Frame" << endl;
-        // lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData;
-        return;
-    }
-    DataBlock data = DataBlock(this->data, sizeData);
-    // lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData << " Data: " << data.data << " Checksum: " << checksum;
-}
+// void Githyanki::Frame::toString()
+// {
+//     if (this->data == NULL)
+//     {
+//         // lout << "NULL Frame" << endl;
+//         // lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData;
+//         return;
+//     }
+//     DataBlock data = DataBlock(this->data, sizeData);
+//     // lout << "Type: " << type << " Seq: " << seq << " DataSize: " << sizeData << " Data: " << data.data << " Checksum: " << checksum;
+// }
 
 Githyanki::DataBlock::~DataBlock()
 {
@@ -227,9 +267,9 @@ void Githyanki::WindowRec::finalize(Frame *frame)
 {
     if (obj->type == Githyanki::FILE)
     {
-        char *name = new char[frame->sizeData+1];
+        char *name = new char[frame->sizeData + 1];
         memcpy(name, frame->data, frame->sizeData);
-        memcpy(name+frame->sizeData, "\0", 1);
+        memcpy(name + frame->sizeData, "\0", 1);
         obj->name = name;
         obj->nameSize = frame->sizeData;
     }
@@ -275,7 +315,7 @@ void Githyanki::WindowRec::acknowledge()
         // Ack frame and populate new places
         lastAck = windowPlace[i]->seq;
         lastSeq = (lastSeq + 1) % Githyanki::WINDOW_MAX;
-        lastDataIndex = (lastDataIndex + 1) % 256;
+        lastDataIndex = (lastDataIndex + 1) % Githyanki::RECIEVE_DATABUFFER_MAX;
         buffer[iBuffer] = new place(lastSeq, lastDataIndex);
         iBuffer++;
         receivedFrames--;
@@ -350,6 +390,14 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         return;
     }
 
+    if (!frame->checkError())
+    {
+        lout << "Data frame received:\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "Media") << "\n\tSeq - " << frame->seq << "\n\tErro no CRC rejeitando frame\n"
+             << endl;
+        safe_delete(frame);
+        return;
+    }
+
     // Frame founded and accepted
 
     // Update type on DataObject
@@ -383,7 +431,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
 
     safe_delete(frame);
 
-    if (windowDataSize == 256)
+    if (windowDataSize == Githyanki::RECIEVE_DATABUFFER_MAX)
     {
         flushBuffer(windowData, windowDataSize);
         windowDataSize = 0;

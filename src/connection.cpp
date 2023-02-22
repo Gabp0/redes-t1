@@ -57,7 +57,7 @@ Frame *Connection::receiveFrame()
         if (Githyanki::isValid(buffer, bytes_lidos, frameReceived))
         {
             timeoutMillis = timeoutMin;
-            frameReceived->toString();
+            //frameReceived->toString();
             return frameReceived;
         }
     } while (timestamp() - comeco <= timeoutMillis);

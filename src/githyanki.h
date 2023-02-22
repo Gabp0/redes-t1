@@ -16,10 +16,13 @@ namespace Githyanki
 
   // Sizes
   static const short FRAME_SIZE_MAX = 256;
-  static const short DATA_SIZE_MAX = 253;
-  static const short CHECK_SIZE = 1;
+  static const short CHECK_SIZE = 2;
+  static const short HEADER_SIZE = 2;
   static const short WINDOW_MAX = 16;
   static const short SEND_WINDOW_MAX = WINDOW_MAX / 2;
+  static const short DATA_SIZE_MAX = FRAME_SIZE_MAX - CHECK_SIZE - HEADER_SIZE;
+  static const short RECIEVE_DATABUFFER_MAX = 100;
+  static const short MINIMUM_FRAME_SIZE = 36;
 
   // MSG
   static const short SUCESS = 200;
@@ -36,7 +39,7 @@ namespace Githyanki
 
   // Types
   static const short TEXT = 0x1;    // 1
-  static const short FILE = 0x2;   // 2
+  static const short FILE = 0x2;    // 2
   static const short ERROR = 0x9;   // 9
   static const short ACK = 0xA;     // 10
   static const short NACK = 0xB;    // 11
@@ -58,9 +61,9 @@ namespace Githyanki
 
   struct Frame
   {
-    unsigned short type : 4;
-    unsigned short seq : 4;
-    unsigned short sizeData : 8;
+    unsigned short type : 4;        // Meio byte
+    unsigned short seq : 4;         // Meio byte
+    unsigned short sizeData : 8;    // Um byte
     char *data;
     char checksum[CHECK_SIZE];
 
@@ -71,6 +74,8 @@ namespace Githyanki
     void toString();
     size_t toBytes(char *buffer);
     void fromBytes(void *bytes);
+    int checkError();
+    void calcError();
   };
 
   struct DataObject
@@ -132,7 +137,7 @@ namespace Githyanki
   struct WindowRec
   {
     place *windowPlace[SEND_WINDOW_MAX];
-    DataBlock *windowData[257];
+    DataBlock *windowData[RECIEVE_DATABUFFER_MAX + 1];
 
     DataObject *obj;
 
