@@ -481,7 +481,6 @@ void Githyanki::Window::prepareFrames(Githyanki::DataObject *obj)
 
     for (; i < Githyanki::SEND_WINDOW_MAX; i++)
     {
-        // memset(dataBuffer, 0, Githyanki::DATA_SIZE_MAX);
         seq = window[firstNotFramedIndex];
         bytesToSend = obj->size - obj->bytesFramed;
 
@@ -501,8 +500,6 @@ void Githyanki::Window::prepareFrames(Githyanki::DataObject *obj)
             bytesToSend = Githyanki::DATA_SIZE_MAX;
 
         dataBuffer = obj->getBytes(bytesToSend);
-        fout << dataBuffer;
-        // memcpy(dataBuffer, obj->data + obj->bytesFramed, bytesToSend);
         obj->bytesFramed += bytesToSend;
 
         frames[i] = new Frame(dataBuffer, bytesToSend, obj->type, seq);
