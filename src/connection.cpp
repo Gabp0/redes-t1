@@ -13,6 +13,8 @@
 #include "sockets/socket.h"
 #include "githyanki.h"
 #include "common.h"
+#include "./error_handling/errors.h"
+
 
 using namespace std;
 using namespace common;
@@ -96,6 +98,7 @@ void Connection::sendFrame(Frame *frame)
     }
 }
 
+
 Githyanki::Ack *Connection::waitAcknowledge()
 {
     Frame *frame = NULL;
@@ -145,6 +148,7 @@ int Connection::acknowledge(Ack ack)
 
     return 1;
 }
+
 
 void Connection::setTimeout(int timeout)
 {
