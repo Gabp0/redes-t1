@@ -10,48 +10,50 @@ using namespace bits;
 
 Trellis::Trellis()
 {
-    this->trellis = new vector<Path>{{vector<Node *>{&s00}, 0}};
-}
-
-Trellis::~Trellis()
-{
-    delete this->trellis;
+    this->trellis = new vector<Path>{{vector<Node>{s00}, 0}};
 }
 
 void Trellis::makeTransition(bit group[2])
-// faz as transicoes na trelica
 {
-    vector<Path> aux_trellis(*this->trellis);
-    this->trellis->clear();
-    for (Path p : aux_trellis)
+    vector<Path> *new_trellis = new vector<Path>;
+    for (Path p : *(this->trellis))
     {
-        Node *cnode = p.path.back();
 
-        // adiciona o caminho com a transicao do zero
-        Path new_path = createNewPath(&p, cnode->zero_tr_state, cnode->zero_tr, group);
-        this->addPath(new_path);
+        // add new path with zero transition
+        Path *new_tr = createNewPath(&p, *p.path.end()->zero_tr_state, p.path.end()->zero_tr, group);
+        new_trellis->push_back(*new_tr); // push to trellis
 
-        // adiciona o caminho com a transicao do um
-        new_path = createNewPath(&p, cnode->one_tr_state, cnode->one_tr, group);
-        this->addPath(new_path);
+        // add new path with one transition
+        new_tr = createNewPath(&p, *p.path.end()->one_tr_state, p.path.end()->one_tr, group);
+        new_trellis->push_back(*new_tr); // push to trellis
     }
+
+    this->trellis->clear();
+    this->trellis = new_trellis;
+    this->cutPaths();
+}
+
+bit Trellis::Node::calculateTransition(Node x, Node y)
+{
+    if (x.one_tr_state->id == y.id)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 bool comp(Trellis::path x, Trellis::path y)
-// funcao aux de comparacao
 {
     return (x.path_metrics < y.path_metrics);
 }
 
 vector<bit> Trellis::getOptimalPath(void)
-// calcula a string original baseada no caminho com a menor distancia de hamming
 {
-    // melhor caminho
     Path opt = *min_element(this->trellis->begin(), this->trellis->end(), comp);
     vector<bit> output;
 
-    for (size_t i = 0; i < (opt.path.size() - 1); i++)
-    {   // calcula a string original
+    for (size_t i = 0; i < opt.path.size(); i++)
+    {
         bit t = Node::calculateTransition(opt.path.at(i), opt.path.at(i + 1));
         output.push_back(t);
     }
@@ -59,52 +61,34 @@ vector<bit> Trellis::getOptimalPath(void)
     return output;
 }
 
-Trellis::Path Trellis::createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2])
-// adiciona uma transicao no caminho
+Trellis::Path *Trellis::createNewPath(Path *current, Node next_state, bit transition[2], bit group[2])
 {
-    int hamming = hammingDistance(transition, group);                              // calculate hamming distance
-    Path new_path{vector<Node *>(current->path), current->path_metrics + hamming}; // create new Path
-    new_path.path.push_back(next_state);                                           // add new state to path
-
-    return new_path;
+    int hamming = hammingDistance(transition, group);                                      // calculate hamming distance
+    Path *new_tr = new Path{vector<Node>(current->path), current->path_metrics + hamming}; // create new Path
+    new_tr->path.push_back(next_state);                                                    // add new state to path
+    return new_tr;
 }
 
-void Trellis::addPath(Path new_path)
-// adiciona o caminho na trelica se nao ha outro caminho melhor no mesmo no
+void Trellis::cutPaths(void)
 {
+    set<int> to_remove;
     for (size_t i = 0; i < this->trellis->size(); i++)
     {
         Path x = this->trellis->at(i);
-
-        if (x.path.back() == new_path.path.back())
+        for (size_t j = i + 1; j < this->trellis->size(); j++)
         {
-            if (new_path.path_metrics < x.path_metrics)
-            {   // substitui o caminho
-                this->trellis->erase(this->trellis->begin() + i);
-                this->trellis->push_back(new_path);
+            Path y = this->trellis->at(j);
+
+            if (x.path.end()->id == y.path.end()->id)
+            {
+                int r = (x.path_metrics > y.path_metrics) ? i : j;
+                to_remove.insert(r);
             }
-            return;
         }
     }
 
-    this->trellis->push_back(new_path);
-}
-
-bit Trellis::Node::calculateTransition(Node *x, Node *y)
-// calcula o bit usado na transicao
-{   
-    if (x->one_tr_state == y)
+    for (int r : to_remove)
     {
-        return 1;
+        this->trellis->erase(this->trellis->begin() + r);
     }
-    return 0;
-}
-
-void Trellis::Path::print(void)
-{
-    for (Node *n : this->path)
-    {
-        cout << n->id << " -> ";
-    }
-    cout << "weight: " << this->path_metrics << endl;
 }

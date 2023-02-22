@@ -1,50 +1,67 @@
-#include "errors.h"
+#include "checksum.h"
 #include <iostream>
 
 using namespace std;
 
-uint8_t errors::checksum8(char *data, size_t size)
-// checksum de 8 bits
+uint8_t checksum::check8(char *data, size_t size)
 {
     uint16_t sum = 0;
 
     for (size_t i = 0; i < size; i++)
     {
-        sum += ((uint8_t)data[i]);
+        sum += (uint8_t)data[i];
 
         // soma o carry
         if (sum >> 8)
         {
-            sum = (sum & 0x00ff) + 1;
+            sum &= 0x00ff;
+            sum += 1;
         }
     }
 
-    return ~sum;
+    sum = ~sum;
+
+    return sum;
 }
 
-uint16_t errors::checksum16(char *data, size_t size)
-// checksum de 16 bits
+uint16_t checksum::check16(char *data, size_t size)
 {
-    uint32_t sum = data[0];
+    uint32_t sum = 0;
 
-    size_t s = 1;
-    if ((size % 2) == 0)
+    for (size_t i = 0; i < size; i += 2)
     {
-        sum += (uint8_t)data[1];
-        s = 2;
-    }
+        uint16_t cbytes = (uint8_t)data[i];
 
-    for (size_t i = s; i < size; i += 2)
-    {
-        uint16_t cbytes = (((uint8_t)data[i]) << 8) | ((uint8_t)data[i + 1]);
+        if (data[i + 1])
+        {
+            cbytes = (cbytes << 8) | ((uint8_t)data[i]);
+        }
+        else
+        {
+            cbytes = (cbytes << 8);
+        }
+
         sum += cbytes;
 
         // soma o carry
         if (sum >> 16)
         {
-            sum = (sum & 0x0000ffff) + 1;
+            sum &= 0x0000ffff;
+            sum += 1;
         }
     }
 
-    return ~sum;
+    sum = ~sum;
+
+    return sum;
+}
+
+bool checksum::isValid(char *data, size_t size, uint8_t check)
+{
+    return (check8(data, size) == check);
+}
+
+bool checksum::isValid(char *data, size_t size, uint16_t check)
+{
+    return (check16(data, size) == check);
 }

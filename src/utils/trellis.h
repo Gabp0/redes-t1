@@ -8,29 +8,25 @@ using namespace std;
 using namespace bits;
 
 class Trellis
-// trelica para implementacao do algoritmo de viterbi
 {
 private:
     struct Node
-    {   // nodo da trelica
-        char id;    // label do nodo
-        bit zero_tr[2]; // bits para transicao no zero
-        Node *zero_tr_state; // estado resultante na transicao do zero
-        bit one_tr[2]; // bits para transicao no um
-        Node *one_tr_state; // estado resultante na transicao do um
+    {
+        char id;
+        bit zero_tr[2];
+        Node *zero_tr_state;
+        bit one_tr[2];
+        Node *one_tr_state;
 
-        static bit calculateTransition(Node *x, Node *y);
+        static bit calculateTransition(Node x, Node y);
     };
 
     struct Path
-    {   // ordem dos nodos e distancia de hamming total
-        vector<Node *> path; // ordem dos nodos
-        int path_metrics;   // distancia de hammming
-
-        void print(void);
+    {
+        vector<Node> path;
+        int path_metrics;
     };
 
-    // possiveis transicoes na trelica
     Node s00{
         '0',
         {0, 0},
@@ -65,14 +61,14 @@ private:
 
     vector<Path> *trellis;
 
-    Path createNewPath(Path *current, Node *next_state, bit transition[2], bit group[2]);
-    void addPath(Path new_path);
+    Path *createNewPath(Path *current, Node next_state, bit transition[2], bit group[2]);
+    void cutPaths(void);
 
 public:
     typedef Path path;
 
     Trellis();
-    ~Trellis();
+    //~Trellis();
     void makeTransition(bit group[2]);
     vector<bit> getOptimalPath();
 };

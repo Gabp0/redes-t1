@@ -2,8 +2,6 @@ rawSocket
 
 # Logs
 *.bin
-errorHandler
-
 
 # Prerequisites
 *.d
