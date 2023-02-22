@@ -87,7 +87,7 @@ void Githyanki::Frame::fromBytes(void *bytes)
 
 int Githyanki::Frame::checkError()
 {
-    if (randomChance(1))
+    if (randomChance(15))
         return 0;
 
     char buffer[Githyanki::FRAME_SIZE_MAX];
@@ -301,10 +301,7 @@ void Githyanki::WindowRec::acknowledge()
             break;
         }
     }
-    if (ack->type == Githyanki::NACK)
-    {
-        cout << "NACK " << ack->seq << endl;
-    }
+
     obj->otherCon->acknowledge(*ack);
 
     // New frames
@@ -401,6 +398,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     {
         lout << "Data frame received:\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "Media") << "\n\tSeq - " << frame->seq << "\n\tErro no CRC rejeitando frame\n"
              << endl;
+        acknowledge();
         safe_delete(frame);
         return;
     }
@@ -450,20 +448,14 @@ void Githyanki::WindowRec::flushBuffer()
     common::lout << endl
                  << "Flushing Data" << endl
                  << endl;
-    cout << endl
-         << "FLUSHING" << endl;
 
     for (int i = 0; i < windowDataSize; windowDataSize--)
     {
-        //&& windowData[i]->data != NULL
-        // cout << "hahahaha" << toBeFlushed << endl;
         if (windowData[toBeFlushed + 1] == NULL)
         {
-            cout << " NULL " << toBeFlushed + 1 << endl;
             i = windowDataSize;
             break;
         }
-        // common::fout << buffer[i]->data;
         fwrite(windowData[toBeFlushed + 1]->data, 1, windowData[toBeFlushed + 1]->size, foutBinary);
         safe_delete(windowData[toBeFlushed + 1]);
 
