@@ -87,6 +87,9 @@ void Githyanki::Frame::fromBytes(void *bytes)
 
 int Githyanki::Frame::checkError()
 {
+    if (randomChance(1))
+        return 0;
+
     char buffer[Githyanki::FRAME_SIZE_MAX];
     int size = 0;
 
@@ -103,7 +106,7 @@ int Githyanki::Frame::checkError()
     size += sizeData;
     memcpy(&buffer[size], checksum, Githyanki::CHECK_SIZE);
     size += Githyanki::CHECK_SIZE;
-    
+
     if (errors::crc16(buffer, size) == 0)
         return 1;
     return 0;
@@ -256,6 +259,7 @@ void Githyanki::WindowRec::init()
     windowDataSize = 0;
     lastAck = -1;
     receivedFrames = 0;
+    toBeFlushed = 0;
 
     obj = new DataObject();
     obj->bytesFramed = 0;
@@ -297,7 +301,10 @@ void Githyanki::WindowRec::acknowledge()
             break;
         }
     }
-
+    if (ack->type == Githyanki::NACK)
+    {
+        cout << "NACK " << ack->seq << endl;
+    }
     obj->otherCon->acknowledge(*ack);
 
     // New frames
@@ -417,24 +424,50 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     {
         lout << "Data frame received:\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "Media") << "\n\tSeq - " << frame->seq << endl;
 
-        DataBlock *data = new DataBlock(frame->data, frame->sizeData);
-        // fout << data->data;
-        //  cout << windowPlace[windowSeqIndex]->posi << endl;
-        windowData[windowPlace[windowSeqIndex]->posi + 1] = data;
+        DataBlock *dataBlock = new DataBlock(frame->data, frame->sizeData);
+
+        // cout << windowPlace[windowSeqIndex]->posi << "  ";
+        int posi = 0;
+        posi = windowPlace[windowSeqIndex]->posi + 1 % Githyanki::RECIEVE_DATABUFFER_MAX;
+
+        windowData[posi] = dataBlock;
         windowDataSize++;
         windowPlace[windowSeqIndex]->received = true;
         receivedFrames++;
     }
 
+    if (windowDataSize == Githyanki::RECIEVE_DATABUFFER_MAX - Githyanki::WINDOW_MAX)
+        flushBuffer();
+
     if (receivedFrames == Githyanki::SEND_WINDOW_MAX)
         acknowledge();
 
     safe_delete(frame);
+}
 
-    if (windowDataSize == Githyanki::RECIEVE_DATABUFFER_MAX)
+void Githyanki::WindowRec::flushBuffer()
+{
+    common::lout << endl
+                 << "Flushing Data" << endl
+                 << endl;
+    cout << endl
+         << "FLUSHING" << endl;
+
+    for (int i = 0; i < windowDataSize; windowDataSize--)
     {
-        flushBuffer(windowData, windowDataSize);
-        windowDataSize = 0;
+        //&& windowData[i]->data != NULL
+        // cout << "hahahaha" << toBeFlushed << endl;
+        if (windowData[toBeFlushed + 1] == NULL)
+        {
+            cout << " NULL " << toBeFlushed + 1 << endl;
+            i = windowDataSize;
+            break;
+        }
+        // common::fout << buffer[i]->data;
+        fwrite(windowData[toBeFlushed + 1]->data, 1, windowData[toBeFlushed + 1]->size, foutBinary);
+        safe_delete(windowData[toBeFlushed + 1]);
+
+        toBeFlushed = (toBeFlushed + 1) % Githyanki::RECIEVE_DATABUFFER_MAX;
     }
 }
 
@@ -457,7 +490,7 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
     }
 
     lout << "Finished" << endl;
-    flushBuffer(window.windowData, window.windowDataSize);
+    window.flushBuffer();
     if (window.obj->type == Githyanki::FILE)
     {
         rename("logs/buffer.bin", window.obj->name);

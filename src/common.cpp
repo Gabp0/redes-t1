@@ -98,24 +98,26 @@ namespace common
         // fin.close();
     }
 
-    void flushBuffer(Githyanki::DataBlock **buffer, int size)
-    {
-        common::lout << endl
-                     << "Flushing Data" << endl
-                     << endl;
-        for (int i = 1; i <= size; i++)
-        {
-            if (buffer[i] != NULL && buffer[i]->data != NULL)
-            {
-                // common::fout << buffer[i]->data;
-                fwrite(buffer[i]->data, 1, buffer[i]->size, foutBinary);
-                safe_delete(buffer[i]);
-            }
-            else
-            {
-                cout << " NULL " << i << endl;
-            }
-        }
-    }
+    // void flushBuffer(Githyanki::DataBlock *buffer[], int size)
+    // {
+
+    //     common::lout << endl
+    //                  << "Flushing Data" << endl
+    //                  << endl;
+    //     for (int i = 0; i < size; i++)
+    //     {
+    //         //
+    //         if (buffer[i] != NULL && buffer[i]->data != NULL)
+    //         {
+    //             // common::fout << buffer[i]->data;
+    //             fwrite(buffer[i]->data, 1, buffer[i]->size, foutBinary);
+    //             safe_delete(buffer[i]);
+    //         }
+    //         else
+    //         {
+    //             cout << " NULL " << i << endl;
+    //         }
+    //     }
+    // }
 
 }

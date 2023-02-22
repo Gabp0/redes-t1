@@ -21,7 +21,7 @@ namespace Githyanki
   static const short WINDOW_MAX = 16;
   static const short SEND_WINDOW_MAX = WINDOW_MAX / 2;
   static const short DATA_SIZE_MAX = FRAME_SIZE_MAX - CHECK_SIZE - HEADER_SIZE;
-  static const short RECIEVE_DATABUFFER_MAX = 100;
+  static const short RECIEVE_DATABUFFER_MAX = 126;
   static const short MINIMUM_FRAME_SIZE = 36;
 
   // MSG
@@ -149,9 +149,11 @@ namespace Githyanki
     int endSeq;
     bool finishedAcked;
     int receivedFrames;
+    int toBeFlushed;
 
     void finalize(Frame *frame);
     void bufferFrame(Frame *frame);
+    void flushBuffer();
     void acknowledge();
     void init();
   };
