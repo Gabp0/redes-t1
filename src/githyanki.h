@@ -12,7 +12,7 @@ class Connection;
 namespace Githyanki
 {
   // Chance to not receive frame
-  static const short chanceLostFrame = 5; 
+  static const short chanceLostFrame = 0;
 
   // Sizes
   static const short FRAME_SIZE_MAX = 256;
@@ -36,7 +36,7 @@ namespace Githyanki
 
   // Types
   static const short TEXT = 0x1;    // 1
-  static const short MEDIA = 0x2;   // 2
+  static const short FILE = 0x2;   // 2
   static const short ERROR = 0x9;   // 9
   static const short ACK = 0xA;     // 10
   static const short NACK = 0xB;    // 11
@@ -44,7 +44,7 @@ namespace Githyanki
   static const short INIT = 0xE;    // 14
   static const short END = 0xF;     // 15
 
-  static const short VALID_TYPES[] = {TEXT, MEDIA, ACK, NACK, ERROR, INIT, END, TIMEOUT};
+  static const short VALID_TYPES[] = {TEXT, FILE, ACK, NACK, ERROR, INIT, END, TIMEOUT};
 
   struct Ack
   {
@@ -78,7 +78,7 @@ namespace Githyanki
     char *data;
 
     int bytesFramed;
-    int size;
+    long size;
 
     char *name;
     int nameSize;
@@ -87,11 +87,13 @@ namespace Githyanki
     int frameQty;
     Connection *myCon;
     Connection *otherCon;
+    std::FILE *file;
 
     ~DataObject();
     DataObject();
     DataObject(char *data);
     DataObject(char *data, char *name);
+    char* getBytes(int size);
   };
 
   struct Window
@@ -143,7 +145,7 @@ namespace Githyanki
     bool finishedAcked;
     int receivedFrames;
 
-    void finish(Frame *frame);
+    void finalize(Frame *frame);
     void bufferFrame(Frame *frame);
     void acknowledge();
     void init();

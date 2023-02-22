@@ -8,29 +8,38 @@
 
 using namespace std;
 
-template<typename T> void safe_delete(T*& a) {
-  delete a;
+template <typename T>
+void safe_delete(T *&a)
+{
+  if (a == NULL)
+    delete a;
   a = NULL;
 }
 
-namespace common{
+namespace common
+{
+  extern fstream lout;
+  extern fstream fout;
+  extern std::FILE *fin;
+  extern std::FILE *foutBinary;
 
-extern fstream lout;
-extern fstream fout;
+  void initLog(string file);
+  void closeLog();
 
-void initLog(string file);
-void closeLog();
+  bool randomChance(int y);
+  int randomBetween(int x, int y);
+  void randomSeed();
 
-bool randomChance(int y);
-int randomBetween(int x, int y);
-void randomSeed();
+  int distWindow(int f, int l, int s);
+  bool ackIf(int f, int l, int s, int c);
 
-int distWindow(int f, int l, int s);
-bool ackIf(int f, int l, int s, int c);
+  void initOutputFile(string file);
+  void closeOutputFile();
 
-void initFile(string file);
-void closeFile();
-void flushBuffer(Githyanki::DataBlock **buffer, int size);
+  long initInputFile(string filePath);
+  void closeInputFile();
+
+  void flushBuffer(Githyanki::DataBlock **buffer, int size);
 }
 
 #endif

@@ -68,23 +68,32 @@ Frame *Connection::receiveFrame()
     return frameReceived;
 }
 
-void Connection::setTimeout(int timeout)
-{
-    timeoutMin = timeout;
-    timeoutMillis = timeoutMin;
-}
-
 void Connection::sendFrame(Frame *frame)
 {
     char buffer[FRAME_SIZE_MAX] = "";
     char soh[16] = "63";
 
     size_t size = frame->toBytes(buffer);
+
     ssize_t sentSOH = send(this->socket, soh, 16, 0);
     ssize_t sent = send(this->socket, buffer, size, 0);
 
     if (sent > 0 && sentSOH > 0)
-        lout << (frame->type == Githyanki::END ? "End" : "Data") << " frame sended:" << (frame->type == Githyanki::END ? "" : "\n\tType - ") << (frame->type == Githyanki::END ? "" : (frame->type == Githyanki::TEXT ? "Text" : "Media")) << "\n\tSeq - " << frame->seq << endl;
+    {
+        if (frame->type == Githyanki::END)
+        {
+            lout << "End frame sended:"
+                 << "\n\tSeq - " << frame->seq << endl;
+        }
+        else if (frame->type == Githyanki::FILE || frame->type == Githyanki::TEXT)
+        {
+            lout << "Data frame sended:"
+                 << "\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "File") << "\n\tSeq - " << frame->seq << endl;
+        }
+        else
+            lout << (frame->type == Githyanki::NACK ? "N-ACK" : "ACK") << " frame sended:"
+                 << "\n\tSeq - " << frame->seq << endl;
+    }
 }
 
 Githyanki::Ack *Connection::waitAcknowledge()
@@ -135,6 +144,12 @@ int Connection::acknowledge(Ack ack)
     sendFrame(ackFrame);
 
     return 1;
+}
+
+void Connection::setTimeout(int timeout)
+{
+    timeoutMin = timeout;
+    timeoutMillis = timeoutMin;
 }
 
 long long Connection::timestamp()

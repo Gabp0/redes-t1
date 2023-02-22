@@ -19,10 +19,30 @@
 using namespace std;
 using namespace common;
 
+int Githyanki::isValid(char *buffer, int tamanho_buffer, Frame *frame)
+{
+    int valid = 0;
+
+    if (tamanho_buffer > 16)
+        frame->fromBytes(buffer);
+
+    for (int i = 0; i < (int)sizeof(VALID_TYPES); i++)
+        if (frame->type == VALID_TYPES[i])
+            valid = 1;
+
+    if (frame->data == NULL)
+        return 0;
+
+    // Check frame
+
+    return valid;
+}
+
 // Frame Stuff
 size_t Githyanki::Frame::toBytes(char *buffer)
 {
     size_t size = sizeData + 3;
+    int offset = 0;
 
     char headerA = type << 4;
     headerA = headerA | seq;
@@ -32,6 +52,12 @@ size_t Githyanki::Frame::toBytes(char *buffer)
     buffer[1] = headerB;
 
     memcpy(&buffer[3], this->data, this->sizeData);
+    if (size < 16)
+    {
+        offset = 17 - size;
+        memset(&buffer[3 + this->sizeData], 0, offset);
+        size += offset;
+    }
     // memcpy(&buffer[size], &this->checksum, 1);
 
     return size;
@@ -149,23 +175,18 @@ Githyanki::DataObject::DataObject(char *data, char *name)
         this->nameSize = sizeof(name);
 }
 
-int Githyanki::isValid(char *buffer, int tamanho_buffer, Frame *frame)
+char *Githyanki::DataObject::getBytes(int size)
 {
-    int valid = 0;
-
-    if (tamanho_buffer > 16)
-        frame->fromBytes(buffer);
-
-    for (int i = 0; i < (int)sizeof(VALID_TYPES); i++)
-        if (frame->type == VALID_TYPES[i])
-            valid = 1;
-
-    if (frame->data == NULL)
-        return 0;
-
-    // Check frame
-
-    return valid;
+    char *data = new char[size];
+    if (this->type == Githyanki::TEXT)
+    {
+        memcpy(data, this->data + this->bytesFramed, size);
+    }
+    else
+    {
+        fread(data, 1, size, this->file);
+    }
+    return data;
 }
 
 // int Githyanki::establishConnection(Connection *con)
@@ -201,12 +222,13 @@ void Githyanki::WindowRec::init()
     obj->size = 0;
 }
 
-void Githyanki::WindowRec::finish(Frame *frame)
+void Githyanki::WindowRec::finalize(Frame *frame)
 {
-    if (obj->type == Githyanki::MEDIA)
+    if (obj->type == Githyanki::FILE)
     {
-        char *name = new char[Githyanki::DATA_SIZE_MAX];
+        char *name = new char[frame->sizeData+1];
         memcpy(name, frame->data, frame->sizeData);
+        memcpy(name+frame->sizeData, "\0", 1);
         obj->name = name;
         obj->nameSize = frame->sizeData;
     }
@@ -292,7 +314,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     }
 
     // Reject non protocol frames
-    if (!(frame->type == Githyanki::TEXT) && !(frame->type == Githyanki::MEDIA) && !(frame->type == Githyanki::END))
+    if (!(frame->type == Githyanki::TEXT) && !(frame->type == Githyanki::FILE) && !(frame->type == Githyanki::END))
     {
         safe_delete(frame);
         return;
@@ -340,7 +362,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         endSeq = frame->seq;
         windowPlace[windowSeqIndex]->received = true;
         receivedFrames++;
-        finish(frame);
+        finalize(frame);
     }
     else
     {
@@ -387,6 +409,10 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
 
     lout << "Finished" << endl;
     flushBuffer(window.windowData, window.windowDataSize);
+    if (window.obj->type == Githyanki::FILE)
+    {
+        rename("logs/buffer.bin", window.obj->name);
+    }
 
     return window.obj;
 }
@@ -448,14 +474,14 @@ void Githyanki::Window::acknowledge(Githyanki::Ack *ack)
 // Window Stuff
 void Githyanki::Window::prepareFrames(Githyanki::DataObject *obj)
 {
-    char dataBuffer[Githyanki::DATA_SIZE_MAX];
+    char *dataBuffer;
     int qtyPrepared = 0;
     int i = firstNotFramedIndex;
     int seq, bytesToSend = 0;
 
     for (; i < Githyanki::SEND_WINDOW_MAX; i++)
     {
-        memset(dataBuffer, 0, Githyanki::DATA_SIZE_MAX);
+        // memset(dataBuffer, 0, Githyanki::DATA_SIZE_MAX);
         seq = window[firstNotFramedIndex];
         bytesToSend = obj->size - obj->bytesFramed;
 
@@ -474,7 +500,9 @@ void Githyanki::Window::prepareFrames(Githyanki::DataObject *obj)
         if (bytesToSend > Githyanki::DATA_SIZE_MAX)
             bytesToSend = Githyanki::DATA_SIZE_MAX;
 
-        memcpy(dataBuffer, obj->data + obj->bytesFramed, bytesToSend);
+        dataBuffer = obj->getBytes(bytesToSend);
+        fout << dataBuffer;
+        // memcpy(dataBuffer, obj->data + obj->bytesFramed, bytesToSend);
         obj->bytesFramed += bytesToSend;
 
         frames[i] = new Frame(dataBuffer, bytesToSend, obj->type, seq);

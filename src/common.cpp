@@ -4,6 +4,8 @@
 
 fstream common::lout;
 fstream common::fout;
+std::FILE *common::foutBinary;
+std::FILE *common::fin;
 
 namespace common
 {
@@ -60,17 +62,40 @@ namespace common
         return 0;
     }
 
-    void initFile(string file)
+    void initOutputFile(string file)
     {
         fout = fstream{file, fout.binary | fout.trunc | fout.in | fout.out};
+        foutBinary = fopen(file.data(), "wb");
+        // fin = fopen(filePath.data(), "wb");
         if (!fout.is_open())
             std::cout << "failed to open " << file << '\n';
         return;
     }
 
-    void closeFile()
+    void closeOutputFile()
     {
         fout.close();
+    }
+
+    long initInputFile(string filePath)
+    {
+        // fin = fstream{filePath, fout.binary | fout.trunc | fout.in | fout.out};
+        fin = fopen(filePath.data(), "rb");
+        if (fin == NULL)
+        {
+            std::cout << "failed to open " << filePath << '\n';
+            return -1;
+        }
+        fseek(fin, 0L, SEEK_END);
+        long sz = ftell(fin);
+        fseek(fin, 0L, SEEK_SET);
+        return sz;
+    }
+
+    void closeInputFile()
+    {
+        fclose(fin);
+        // fin.close();
     }
 
     void flushBuffer(Githyanki::DataBlock **buffer, int size)
@@ -82,7 +107,8 @@ namespace common
         {
             if (buffer[i] != NULL && buffer[i]->data != NULL)
             {
-                common::fout << buffer[i]->data;
+                // common::fout << buffer[i]->data;
+                fwrite(buffer[i]->data, 1, buffer[i]->size, foutBinary);
                 safe_delete(buffer[i]);
             }
             else
@@ -90,6 +116,6 @@ namespace common
                 cout << " NULL " << i << endl;
             }
         }
-        cout << endl;
     }
+
 }
