@@ -45,7 +45,6 @@ void sendFile(string filePath, string fileName, Connection *serverCon, Connectio
 
         serverCon->setTimeout(2000);
         common::initLog("logs/serverLog.bin");
-        common::initOutputFile("logs/wtf.bin");
         Githyanki::SlidingWindowSend(&msg);
 }
 
@@ -67,9 +66,9 @@ int main(int argc, char **argv)
         if (cmdOptionExists(argv, argv + argc, "-s"))
         {
                 string text = "Olha gostario de pedir um hambuegerer sem feijao, obrigado";
-                // sendFile("logs/mosaico_empy.png", "mosaico_empy.png", &serverCon, &clientCon);
+                sendFile("arquivos/mosaico_empy.png", "mosaico_empy.png", &serverCon, &clientCon);
                 // sendFile("logs/text", "text", &serverCon, &clientCon);
-                sendString(&text, &serverCon, &clientCon);
+                // sendString(&text, &serverCon, &clientCon);
         }
         else if (cmdOptionExists(argv, argv + argc, "-r"))
         {
