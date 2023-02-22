@@ -4,13 +4,13 @@ CC = g++
 TARGET = errorHandler
 
 # flags
-CPPFLAGS = -Wall -g
+CPPFLAGS = -Wall -g --std=c++17
 LDLIBS = -lm -lgmp
 
 # diretorios fonte
 VPATH = ../utils
 
-objs = main.o convolution.o checksum.o bits.o trellis.o
+objs = error_test.o convolution.o checksum.o crc.o bits.o trellis.o
 
 .PHONY: all clean purge
 
@@ -21,15 +21,15 @@ $(TARGET): $(objs)
 	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o $(TARGET)
 
 # compilacao
-main.o: main.cpp checksum.h convolution.h
-checksum.o: checksum.cpp checksum.h
-convolution.o: convolution.cpp convolution.h bits.h
-trellis.o: trellis.cpp trellis.h bits.h 
-bits.o: bits.cpp bits.h
+error_test.o: errors.h
+checksum.o: errors.h
+crc.o: errors.h
+convolution.o: errors.h bits.h
+trellis.o: trellis.h bits.h 
+bits.o: bits.h
 
 # limpeza
 clean:
 	-rm -f $(objs) *~
 purge: clean
-	-rm -f rgps
-
+	-rm -f $(TARGET)
