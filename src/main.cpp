@@ -61,7 +61,7 @@ int main(int argc, char **argv)
         Connection serverCon("lo1");
         Connection clientCon("lo2");
 
-        // common::randomSeed();
+        common::randomSeed();
 
         if (cmdOptionExists(argv, argv + argc, "-s"))
         {

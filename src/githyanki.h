@@ -12,7 +12,7 @@ class Connection;
 namespace Githyanki
 {
   // Chance to not receive frame
-  static const short chanceLostFrame = 0;
+  static const short chanceLostFrame = 2;
 
   // Sizes
   static const short FRAME_SIZE_MAX = 256;
@@ -41,13 +41,15 @@ namespace Githyanki
   static const short TEXT = 0x1;    // 1
   static const short FILE = 0x2;    // 2
   static const short ERROR = 0x9;   // 9
+  static const short RTS = 0x6;     // 6
+  static const short CTS = 0x7;     // 7
   static const short ACK = 0xA;     // 10
   static const short NACK = 0xB;    // 11
   static const short TIMEOUT = 0xD; // 13
   static const short INIT = 0xE;    // 14
   static const short END = 0xF;     // 15
 
-  static const short VALID_TYPES[] = {TEXT, FILE, ACK, NACK, ERROR, INIT, END, TIMEOUT};
+  static const short VALID_TYPES[] = {TEXT, FILE, RTS, CTS, ACK, NACK, ERROR, INIT, END, TIMEOUT};
 
   struct Ack
   {
@@ -61,9 +63,9 @@ namespace Githyanki
 
   struct Frame
   {
-    unsigned short type : 4;        // Meio byte
-    unsigned short seq : 4;         // Meio byte
-    unsigned short sizeData : 8;    // Um byte
+    unsigned short type : 4;     // Meio byte
+    unsigned short seq : 4;      // Meio byte
+    unsigned short sizeData : 8; // Um byte
     char *data;
     char checksum[CHECK_SIZE];
 
@@ -98,7 +100,7 @@ namespace Githyanki
     DataObject();
     DataObject(char *data);
     DataObject(char *data, char *name);
-    char* getBytes(int size);
+    char *getBytes(int size);
   };
 
   struct Window
@@ -110,6 +112,7 @@ namespace Githyanki
     int firstNotFramedIndex;
     int endSeq;
     int sendingFrames;
+    int nackSeq;
 
     void prepareFrames(Githyanki::DataObject *obj);
     void acknowledge(Ack *ack);
@@ -121,8 +124,13 @@ namespace Githyanki
     int seq;
     int posi;
     bool received;
+    bool lost;
 
-    place(int s, int p) : seq(s), posi(p) { received = false; };
+    place(int s, int p) : seq(s), posi(p)
+    {
+      received = false;
+      lost = false;
+    };
   };
 
   struct DataBlock
@@ -150,6 +158,8 @@ namespace Githyanki
     bool finishedAcked;
     int receivedFrames;
     int toBeFlushed;
+    int lostCount;
+    bool waitingLostFrame;
 
     void finalize(Frame *frame);
     void bufferFrame(Frame *frame);

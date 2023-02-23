@@ -23,6 +23,7 @@ public:
     void sendFrame(Githyanki::Frame *frame);
     Githyanki::Frame* receiveFrame();
     void setTimeout(int timeout);
+    Githyanki::Ack* waitRequest();
     // Send first n frames from *frames
     void sendNFrames(int n, Githyanki::Frame **frames);
 };
