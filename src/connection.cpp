@@ -14,6 +14,7 @@
 #include "githyanki.h"
 #include "utils/common.h"
 #include "./error_handling/errors.h"
+#include <mutex>
 
 using namespace std;
 using namespace common;
@@ -37,26 +38,24 @@ Connection::~Connection(void)
 Frame *Connection::receiveFrame()
 {
     Frame *frameReceived = new Frame();
+    char buffer[Githyanki::FRAME_SIZE_MAX] = "";
 
     int bytes_lidos;
-    char buffer[Githyanki::FRAME_SIZE_MAX] = "";
-    int tamanho_buffer = Githyanki::FRAME_SIZE_MAX;
     long long comeco = timestamp();
     struct timeval timeout = {.tv_sec = timeoutMillis / 1000, .tv_usec = (timeoutMillis % 1000) * 1000};
+
     setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    // lout << endl
-    //      << "Reading socket" << endl;
+
     do
     {
-        bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
+        bytes_lidos = recv(this->socket, buffer, Githyanki::FRAME_SIZE_MAX, 0);
         if (buffer[0] == Githyanki::SOH)
         {
-            bytes_lidos = recv(this->socket, buffer, tamanho_buffer, 0);
+            bytes_lidos = recv(this->socket, buffer, Githyanki::FRAME_SIZE_MAX, 0);
         }
         if (Githyanki::isValid(buffer, bytes_lidos, frameReceived))
         {
             timeoutMillis = timeoutMin;
-            // frameReceived->toString();
             return frameReceived;
         }
     } while (timestamp() - comeco <= timeoutMillis);
@@ -66,6 +65,38 @@ Frame *Connection::receiveFrame()
     lout << "Timeout * " << t << endl;
     timeoutMillis *= t;
     lout << "Socket Timeout" << endl;
+    return frameReceived;
+}
+
+Frame *Connection::receiveRTS()
+{
+    Frame *frameReceived = new Frame();
+    char buffer[Githyanki::FRAME_SIZE_MAX] = "";
+
+    int timeoutMillisRTS = 2000;
+
+    int bytes_lidos;
+    long long comeco = timestamp();
+    struct timeval timeout = {.tv_sec = timeoutMillisRTS / 1000, .tv_usec = (timeoutMillisRTS % 1000) * 1000};
+
+    setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+    do
+    {
+        bytes_lidos = recv(this->socket, buffer, Githyanki::FRAME_SIZE_MAX, 0);
+
+        if (buffer[0] == Githyanki::SOH)
+        {
+            bytes_lidos = recv(this->socket, buffer, Githyanki::FRAME_SIZE_MAX, 0);
+        }
+        if (Githyanki::isValid(buffer, bytes_lidos, frameReceived))
+        {
+
+            return frameReceived;
+        }
+
+    } while (timestamp() - comeco <= timeoutMillisRTS);
+
+    frameReceived->type = Githyanki::TIMEOUT;
     return frameReceived;
 }
 
@@ -90,6 +121,11 @@ void Connection::sendFrame(Frame *frame)
         {
             lout << "Data frame sended:"
                  << "\n\tType - " << (frame->type == Githyanki::TEXT ? "Text" : "File") << "\n\tSeq - " << frame->seq << endl;
+        }
+        else if (frame->type == Githyanki::RTS || frame->type == Githyanki::CTS)
+        {
+            lout << "Request frame sended:"
+                 << "\n\tType - " << (frame->type == Githyanki::RTS ? "RTS" : "CTS") << endl;
         }
         else
             lout << (frame->type == Githyanki::NACK ? "N-ACK" : "ACK") << " frame sended:"
@@ -134,41 +170,33 @@ Githyanki::Ack *Connection::waitAcknowledge()
     }
 }
 
-Githyanki::Ack *Connection::waitRequest()
+Githyanki::Ack *Connection::waitRequest(int timeout)
 {
     Frame *frame = NULL;
     Ack *ack = new Ack(0, 0);
 
     lout << endl
-         << "Waiting for ack" << endl;
-    while (true)
+         << "Waiting for RTS" << endl;
+    for (;timeout > 0; timeout--)
     {
-        frame = receiveFrame();
+        frame = receiveRTS();
 
-        if (frame != NULL)
+        // Frame received not Acknowledge
+        if (frame->type == Githyanki::RTS || frame->type == Githyanki::CTS)
         {
-            // Timeout
-            if (frame->type == Githyanki::TIMEOUT)
-            {
-                lout << "\tTimeout" << endl
-                     << endl;
-                ack->seq = 0;
-                ack->type = TIMEOUT;
-                return ack;
-            }
-
-            // Frame received not Acknowledge
-            if (frame->type == Githyanki::RTS || frame->type == Githyanki::CTS)
-            {
-                ack->seq = frame->seq;
-                ack->type = frame->type;
-                lout << "\tReceived\n\t" << (ack->type == Githyanki::ACK ? "Ack: " : "Nack: ") << ack->seq << endl
-                     << endl;
-                return ack;
-            }
+            ack->seq = 0;
+            ack->type = frame->type;
             safe_delete(frame);
+            lout << "Received\n\t" << (ack->type == Githyanki::RTS ? "RTS " : "CTS ") << endl;
+            return ack;
         }
+
+        safe_delete(frame);
     }
+
+    ack->seq = 0;
+    ack->type = Githyanki::TIMEOUT;
+    return ack;
 }
 
 int Connection::acknowledge(Ack ack)

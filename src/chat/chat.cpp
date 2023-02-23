@@ -19,9 +19,9 @@ WINDOW *create_newwin(int height, int width, int starty, int startx, chtype colo
     return (new_win);
 }
 
-Chat::Chat(string interface1, string interface2)
+Chat::Chat(string myCon, string otherCon)
 {
-    this->app = new Application(interface1, interface2);
+    this->app = new Application(myCon, otherCon);
 
     setlocale(LC_ALL, "");
     initscr();
@@ -72,9 +72,10 @@ void Chat::receiveThread(Chat *cs)
 {
     while (!cs->finish)
     {
+        //&& !cs->app->sending
         if (cs->canReceive)
         {
-            cs->receiving = cs->app->listen();
+            cs->receiving = cs->app->listen(&(cs->finish));
         }
 
         if (cs->receiving)
@@ -84,7 +85,7 @@ void Chat::receiveThread(Chat *cs)
             cs->printToHistory(rcv, "gabAlter");
         }
 
-        // this_thread::sleep_for(chrono::milliseconds(100));
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 }
 
@@ -166,7 +167,7 @@ bool Chat::readFromUser()
                 if (stat(filename.c_str(), &buffer) == 0)
                 {
                     this->canReceive = false;
-                    app->sendFile(substrs.at(1), substrs.at(2));
+                    app->send(substrs.at(1), substrs.at(2));
                     printToStatus("Arquivo " + filename + " enviado");
                     this->canReceive = true;
                 }
@@ -188,7 +189,7 @@ bool Chat::readFromUser()
         else
         { // send message
             this->canReceive = false;
-            this->app->sendString(&input);
+            this->app->send(&input);
             printToHistory(input, "gab");
             this->canReceive = true;
         }

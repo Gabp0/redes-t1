@@ -50,7 +50,7 @@ namespace Githyanki
   static const short END = 0xF;     // 15
 
   static const short VALID_TYPES[] = {TEXT, FILE, RTS, CTS, ACK, NACK, ERROR, INIT, END, TIMEOUT};
-
+ 
   struct Ack
   {
     // Ack or Nack
@@ -168,8 +168,6 @@ namespace Githyanki
     void init();
   };
 
-  int establishConnection(DataObject *msg);
-  int listenToConnection(Connection *otherCon, Connection *myCon);
   int SlidingWindowSend(Githyanki::DataObject *obj);
   Githyanki::DataObject *SlidingWindowReceive(Connection *myCon, Connection *otherCon);
   int isValid(char *buffer, int tamanho_buffer, Frame *frame);

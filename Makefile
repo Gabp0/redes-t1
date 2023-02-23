@@ -18,7 +18,7 @@ all: $(TARGET)
 
 # ligacao
 $(TARGET): $(objs)
-	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o $(TARGET)
+	$(CC) $(objs) $(CPPFLAGS) $(LDLIBS) -o $(TARGET)
 
 # compilacao
 main.o: connection.h githyanki.h common.h

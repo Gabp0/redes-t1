@@ -27,7 +27,7 @@ private:
     void printToStatus(string input);
 
 public:
-    Chat(string interface1, string interface2);
+    Chat(string myCon, string otherCon);
     ~Chat();
     int loadChat();
     bool readFromUser(void);

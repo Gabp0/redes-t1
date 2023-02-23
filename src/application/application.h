@@ -3,6 +3,7 @@
 
 #include <string>
 #include "../connection.h"
+#include <mutex>
 
 using namespace std;
 
@@ -13,12 +14,20 @@ private:
     Connection *otherCon;
 
 public:
-    Application(string server, string client);
+    Application(string myCon, string otherCon);
     ~Application();
-    void sendString(string *text);
-    void sendFile(string filePath, string fileName);
-    int listen(void);
+    void send(string *text);
+    void send(string filePath, string fileName);
+    
+    int listen(bool *finish);
+    int establishConnection();
+
+    mutex sendingMutex;
+    // mutex recvMutex;
+
     string recv(void);
+
+    // bool sending;
 };
 
 #endif

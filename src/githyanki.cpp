@@ -221,46 +221,6 @@ char *Githyanki::DataObject::getBytes(int size)
     return data;
 }
 
-int Githyanki::establishConnection(DataObject *msg)
-{
-    Ack *request;
-
-    Frame rtsFrame = Frame(Githyanki::RTS, 0);
-    msg->otherCon->sendFrame(&rtsFrame);
-    Frame *recvFrame;
-    recvFrame = msg->myCon->receiveFrame();
-
-    if (recvFrame->type == Githyanki::TIMEOUT)
-    {
-        safe_delete(request);
-        // cout << "CTS Timeout" << endl;
-    }
-    if (recvFrame->type == Githyanki::CTS)
-    {
-        safe_delete(request);
-        Githyanki::SlidingWindowSend(msg);
-    }
-
-    return 0;
-}
-
-int Githyanki::listenToConnection(Connection *otherCon, Connection *myCon)
-{
-    Ack *request = myCon->waitRequest();
-
-    if (request->type == Githyanki::RTS)
-    {
-        Frame ctsFrame = Frame(Githyanki::CTS, 0);
-        otherCon->sendFrame(&ctsFrame);
-        safe_delete(request);
-        //Githyanki::SlidingWindowReceive(myCon, otherCon);
-
-        return 1;
-    }
-
-    return 0;
-}
-
 void Githyanki::WindowRec::init()
 {
     int i = 0;
@@ -522,7 +482,14 @@ void Githyanki::WindowRec::flushBuffer()
             i = windowDataSize;
             break;
         }
-        fwrite(windowData[toBeFlushed + 1]->data, 1, windowData[toBeFlushed + 1]->size, foutBinary);
+        if (this->obj->type == Githyanki::FILE)
+        {
+            fwrite(windowData[toBeFlushed + 1]->data, 1, windowData[toBeFlushed + 1]->size, foutBinary);
+        }
+        else
+        {
+            fout << windowData[toBeFlushed + 1]->data << endl;
+        }
         safe_delete(windowData[toBeFlushed + 1]);
 
         toBeFlushed = (toBeFlushed + 1) % Githyanki::RECIEVE_DATABUFFER_MAX;
@@ -705,7 +672,7 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
             otherCon->sendNFrames(window.sendingFrames, window.frames);
         }
     }
-    lout << "Finished";
+    lout << "Finished" << endl;
 
     return 1;
 }

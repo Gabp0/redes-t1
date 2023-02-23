@@ -3,6 +3,7 @@
 
 #include <string>
 #include "githyanki.h"
+#include <mutex>
 
 using namespace std;
 using namespace Githyanki;
@@ -17,13 +18,16 @@ private:
 public:
     Connection(string device);
     ~Connection(void);
-    int acknowledge(Ack ack);
-    Githyanki::Ack* waitAcknowledge();
-    int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
-    void sendFrame(Githyanki::Frame *frame);
     Githyanki::Frame* receiveFrame();
+    Githyanki::Frame* receiveRTS();
+    
+    Githyanki::Ack* waitAcknowledge();
+    Githyanki::Ack* waitRequest(int timeout = 3);
+    
+    int receiveMessage(int timeoutMillis, char *buffer, int tamanho_buffer);
+    int acknowledge(Ack ack);
+    void sendFrame(Githyanki::Frame *frame);
     void setTimeout(int timeout);
-    Githyanki::Ack* waitRequest();
     // Send first n frames from *frames
     void sendNFrames(int n, Githyanki::Frame **frames);
 };
