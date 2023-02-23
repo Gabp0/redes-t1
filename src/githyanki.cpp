@@ -15,7 +15,7 @@
 #include <iostream>
 #include <cmath>
 #include "connection.h"
-#include "common.h"
+#include "utils/common.h"
 #include "error_handling/errors.h"
 
 using namespace std;
@@ -87,7 +87,7 @@ int Githyanki::Frame::checkError()
 {
     if (randomChance(15))
         checksum[0]++;
-    
+
     char buffer[Githyanki::FRAME_SIZE_MAX];
     int size = 0;
 
@@ -221,38 +221,43 @@ char *Githyanki::DataObject::getBytes(int size)
     return data;
 }
 
-int Githyanki::establishConnection(Connection *otherCon, Connection *myCon)
+int Githyanki::establishConnection(DataObject *msg)
 {
     Ack *request;
-    Githyanki::DataObject msg = {};
-    bool RTS = false;
-    
-    while(true){
-        request = myCon->waitRequest();
 
-        if (request->type == Githyanki::RTS){
-            Frame ctsFrame = Frame(Githyanki::CTS, 0);
-            otherCon->sendFrame(&ctsFrame);
-            safe_delete(request);
-            Githyanki::SlidingWindowReceive(myCon, otherCon);
-        }
+    Frame rtsFrame = Frame(Githyanki::RTS, 0);
+    msg->otherCon->sendFrame(&rtsFrame);
+    Frame *recvFrame;
+    recvFrame = msg->myCon->receiveFrame();
 
-        if (RTS){
-            Frame rtsFrame = Frame(Githyanki::RTS, 0);
-            otherCon->sendFrame(&rtsFrame);
-            Frame *recvFrame;
-            recvFrame = myCon->receiveFrame();
-            
-            if (recvFrame->type == Githyanki::TIMEOUT){
-                safe_delete(request);
-                cout << "CTS Timeout" << endl;
-            } 
-            if (recvFrame->type == Githyanki::CTS){
-                safe_delete(request);
-                Githyanki::SlidingWindowSend(&msg);
-            }
-        }
+    if (recvFrame->type == Githyanki::TIMEOUT)
+    {
+        safe_delete(request);
+        // cout << "CTS Timeout" << endl;
     }
+    if (recvFrame->type == Githyanki::CTS)
+    {
+        safe_delete(request);
+        Githyanki::SlidingWindowSend(msg);
+    }
+
+    return 0;
+}
+
+int Githyanki::listenToConnection(Connection *otherCon, Connection *myCon)
+{
+    Ack *request = myCon->waitRequest();
+
+    if (request->type == Githyanki::RTS)
+    {
+        Frame ctsFrame = Frame(Githyanki::CTS, 0);
+        otherCon->sendFrame(&ctsFrame);
+        safe_delete(request);
+        //Githyanki::SlidingWindowReceive(myCon, otherCon);
+
+        return 1;
+    }
+
     return 0;
 }
 
@@ -476,7 +481,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     if (receivedFrames == Githyanki::SEND_WINDOW_MAX)
         acknowledge();
     else if (windowSeqIndex != 0 && windowPlace[windowSeqIndex - 1]->received == false)
-    { // Anterior nao recebido
+    {                                                // Anterior nao recebido
         for (int i = 1; windowSeqIndex - i > 0; i++) // Checa anteriores
         {
             if (windowPlace[windowSeqIndex - i]->received == false)

@@ -1,13 +1,22 @@
-#include "chat_screen.h"
+#include "chat.h"
+#include <thread>
+
+void receive(Chat *cs)
+{
+    cs->receive();
+}
 
 int main(int argc, char const *argv[])
 {
-    ChatScreen cs;
+    Chat cs("lo1", "lo2");
 
-    while (1)
+    std::thread th1(receive, &cs);
+
+    while (cs.readFromUser())
     {
-        cs.read();
     }
+
+    th1.join();
 
     return 0;
 }

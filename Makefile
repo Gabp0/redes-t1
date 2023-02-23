@@ -8,9 +8,9 @@ CPPFLAGS = -Wall -g --std=c++17
 LDLIBS = -lm -lgmp
 
 # diretorios fonte
-VPATH = src:src/sockets:src/error_handling
+VPATH = src:src/sockets:src/error_handling:src/utils:src/application
 
-objs = main.o githyanki.o connection.o common.o socket.o crc.o
+objs = main.o githyanki.o connection.o common.o socket.o crc.o application.o
 
 .PHONY: all clean purge
 
@@ -21,12 +21,13 @@ $(TARGET): $(objs)
 	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o $(TARGET)
 
 # compilacao
-main.o: main.cpp connection.h githyanki.h common.h
-socket.o: socket.c socket.h
-common.o: common.cpp common.h
-githyanki.o: githyanki.cpp githyanki.h connection.h common.h errors.h
-connection.o: connection.cpp connection.h githyanki.h 
-crc.o: crc.cpp errors.h
+main.o: connection.h githyanki.h common.h
+socket.o: socket.h
+common.o: common.h
+githyanki.o: githyanki.h connection.h common.h errors.h
+connection.o: connection.h githyanki.h 
+application.o: application.h
+crc.o: errors.h
 
 
 # limpeza

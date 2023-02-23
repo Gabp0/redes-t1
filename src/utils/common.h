@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "githyanki.h"
+#include "../githyanki.h"
 
 using namespace std;
 

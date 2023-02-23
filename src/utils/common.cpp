@@ -1,6 +1,6 @@
 #include "common.h"
 #include <ctime>
-#include "githyanki.h"
+#include "../githyanki.h"
 
 fstream common::lout;
 fstream common::fout;

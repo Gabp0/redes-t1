@@ -168,12 +168,10 @@ namespace Githyanki
     void init();
   };
 
-  int sendText();
-  int establishConnection(Connection *otherCon, Connection *myCon);
+  int establishConnection(DataObject *msg);
+  int listenToConnection(Connection *otherCon, Connection *myCon);
   int SlidingWindowSend(Githyanki::DataObject *obj);
   Githyanki::DataObject *SlidingWindowReceive(Connection *myCon, Connection *otherCon);
-  void printFrame(Githyanki::Frame *f);
-  unsigned short checksum(unsigned short *buff, int _16bitword);
   int isValid(char *buffer, int tamanho_buffer, Frame *frame);
 };
 

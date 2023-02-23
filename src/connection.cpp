@@ -12,9 +12,8 @@
 #include <iostream>
 #include "sockets/socket.h"
 #include "githyanki.h"
-#include "common.h"
+#include "utils/common.h"
 #include "./error_handling/errors.h"
-
 
 using namespace std;
 using namespace common;
@@ -57,7 +56,7 @@ Frame *Connection::receiveFrame()
         if (Githyanki::isValid(buffer, bytes_lidos, frameReceived))
         {
             timeoutMillis = timeoutMin;
-            //frameReceived->toString();
+            // frameReceived->toString();
             return frameReceived;
         }
     } while (timestamp() - comeco <= timeoutMillis);
@@ -97,7 +96,6 @@ void Connection::sendFrame(Frame *frame)
                  << "\n\tSeq - " << frame->seq << endl;
     }
 }
-
 
 Githyanki::Ack *Connection::waitAcknowledge()
 {
@@ -185,7 +183,6 @@ int Connection::acknowledge(Ack ack)
 
     return 1;
 }
-
 
 void Connection::setTimeout(int timeout)
 {
