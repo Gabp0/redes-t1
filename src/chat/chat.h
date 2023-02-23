@@ -24,6 +24,7 @@ private:
 
     static void receiveThread(Chat *cs);
     void printToHistory(string input, string user);
+    void printToStatus(string input);
 
 public:
     Chat(string interface1, string interface2);

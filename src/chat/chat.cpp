@@ -6,6 +6,7 @@
 #include <bits/stdc++.h>
 #include <ctime>
 #include <thread>
+#include <sys/stat.h>
 #include "../application/application.h"
 
 using namespace std;
@@ -32,7 +33,7 @@ Chat::Chat(string interface1, string interface2)
     init_pair(2, COLOR_BLACK, COLOR_GREEN);
 
     getmaxyx(stdscr, this->row, this->col);
-    this->history_cursor = 1;
+    this->history_cursor = 0;
     this->canReceive = true;
     this->receiving = false;
     this->finish = false;
@@ -101,21 +102,29 @@ int Chat::loadChat(void)
     return 0;
 }
 
+void Chat::printToStatus(string input)
+{
+    wmove(stdscr, this->row - 6, 0);
+
+    printw(input.c_str());
+
+    refresh();
+}
+
 void Chat::printToHistory(string input, string user)
 {
-    wmove(this->hist_border, this->history_cursor, 0);
+    wmove(this->chat_history, this->history_cursor, 0);
 
     time_t ct;
     time(&ct);
     struct tm *lt = localtime(&ct);
 
-    wprintw(this->hist_border, " %d:%d:%d %s : %s\n", lt->tm_hour, lt->tm_min, lt->tm_sec, user.c_str(), input.c_str());
+    wprintw(this->chat_history, "%d:%d:%d %s : %s\n", lt->tm_hour, lt->tm_min, lt->tm_sec, user.c_str(), input.c_str());
 
     this->history_cursor++;
-    box(this->hist_border, 0, 0);
 
     wrefresh(this->chat_history);
-    wrefresh(this->hist_border);
+    // wrefresh(this->hist_border);
 }
 
 bool Chat::readFromUser()
@@ -152,14 +161,28 @@ bool Chat::readFromUser()
 
             if (cmd.compare("/send") == 0) // send file
             {
-                this->canReceive = false;
-                app->sendFile(substrs.at(1), substrs.at(2));
-                this->canReceive = true;
+                string filename = substrs.at(1);
+                struct stat buffer;
+                if (stat(filename.c_str(), &buffer) == 0)
+                {
+                    this->canReceive = false;
+                    app->sendFile(substrs.at(1), substrs.at(2));
+                    printToStatus("Arquivo " + filename + " enviado");
+                    this->canReceive = true;
+                }
+                else
+                {
+                    printToStatus("Arquivo " + filename + " não foi encontrado");
+                }
             }
             else if (cmd.compare("/quit") == 0) // quit the program
             {
                 this->finish = true;
                 return false;
+            }
+            else
+            {
+                printToStatus("Comando " + cmd + " não encontrado");
             }
         }
         else
