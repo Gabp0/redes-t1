@@ -1,5 +1,6 @@
 #include "application.h"
 #include <string>
+#include <sstream>
 #include "../connection.h"
 #include "../githyanki.h"
 #include "../utils/common.h"
@@ -10,10 +11,6 @@ Application::Application(string server, string client)
 {
     this->serverCon = new Connection(server);
     this->clientCon = new Connection(client);
-
-    this->clientCon->setTimeout(1000);
-    common::initLog("logs/clientLog.bin");
-    common::initOutputFile("logs/buffer.bin");
 
     common::randomSeed();
 }
@@ -35,6 +32,7 @@ void Application::sendString(string *text)
 
     this->serverCon->setTimeout(2000);
     common::initLog("logs/serverLog.bin");
+
     Githyanki::establishConnection(&msg);
 }
 
@@ -56,6 +54,7 @@ void Application::sendFile(string filePath, string fileName)
 
     this->serverCon->setTimeout(2000);
     common::initLog("logs/serverLog.bin");
+
     Githyanki::establishConnection(&msg);
 }
 
@@ -64,7 +63,27 @@ int Application::listen(void)
     return Githyanki::listenToConnection(this->serverCon, this->clientCon);
 }
 
-void Application::recv(void)
+string Application::recv(void)
 {
-    Githyanki::SlidingWindowReceive(this->clientCon, this->serverCon);
+    this->clientCon->setTimeout(1000);
+    common::initLog("logs/clientLog.bin");
+    common::initOutputFile("logs/buffer.bin");
+
+    Githyanki::DataObject *obj = Githyanki::SlidingWindowReceive(this->clientCon, this->serverCon);
+
+    if (obj->type == Githyanki::FILE)
+    {
+        return "---Arquivo recebido, salvo em: " + string(obj->name) + "---";
+    }
+
+    if (obj->type == Githyanki::TEXT)
+    {
+        ifstream t("logs/buffer.bin");
+        stringstream buffer;
+        buffer << t.rdbuf();
+
+        return buffer.str();
+    }
+
+    return "";
 }

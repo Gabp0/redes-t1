@@ -12,7 +12,7 @@ class Connection;
 namespace Githyanki
 {
   // Chance to not receive frame
-  static const short chanceLostFrame = 2;
+  static const short chanceLostFrame = 0;
 
   // Sizes
   static const short FRAME_SIZE_MAX = 256;

@@ -18,7 +18,7 @@ public:
     void sendString(string *text);
     void sendFile(string filePath, string fileName);
     int listen(void);
-    void recv(void);
+    string recv(void);
 };
 
 #endif

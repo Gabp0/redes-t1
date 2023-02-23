@@ -1,16 +1,16 @@
 # Makefile
 # feito por Gabriel Pontarolo
 CC = g++
-TARGET = rawSocket
+TARGET = chat
 
 # flags
 CPPFLAGS = -Wall -g --std=c++17
-LDLIBS = -lm -lgmp
+LDLIBS = -lm -lgmp -lncurses -ltinfo
 
 # diretorios fonte
-VPATH = src:src/sockets:src/error_handling:src/utils:src/application
+VPATH = src:src/sockets:src/error_handling:src/utils:src/application:src/chat
 
-objs = main.o githyanki.o connection.o common.o socket.o crc.o application.o
+objs = main.o githyanki.o connection.o common.o socket.o crc.o application.o chat.o
 
 .PHONY: all clean purge
 
@@ -27,6 +27,7 @@ common.o: common.h
 githyanki.o: githyanki.h connection.h common.h errors.h
 connection.o: connection.h githyanki.h 
 application.o: application.h
+chat.o: chat.h application.h
 crc.o: errors.h
 
 

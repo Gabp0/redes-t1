@@ -22,8 +22,8 @@ private:
 
     bool finish;
 
-    void receiveThread(void);
-    void printToHistory(char *input, char *user);
+    static void receiveThread(Chat *cs);
+    void printToHistory(string input, string user);
 
 public:
     Chat(string interface1, string interface2);

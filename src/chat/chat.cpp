@@ -67,19 +67,20 @@ Chat::~Chat()
     endwin();
 }
 
-void Chat::receiveThread(void)
+void Chat::receiveThread(Chat *cs)
 {
-    while (!this->finish)
+    while (!cs->finish)
     {
-        if (this->canReceive)
+        if (cs->canReceive)
         {
-            this->receiving = this->app->listen();
+            cs->receiving = cs->app->listen();
         }
 
-        if (this->receiving)
+        if (cs->receiving)
         {
-            this->app->recv();
-            this->receiving = false;
+            string rcv = cs->app->recv();
+            cs->receiving = false;
+            cs->printToHistory(rcv, "gabAlter");
         }
 
         // this_thread::sleep_for(chrono::milliseconds(100));
@@ -88,7 +89,7 @@ void Chat::receiveThread(void)
 
 int Chat::loadChat(void)
 {
-    thread th1(receiveThread);
+    thread th1(receiveThread, this);
 
     while (!this->finish)
     {
@@ -96,18 +97,19 @@ int Chat::loadChat(void)
     }
 
     th1.join();
+
+    return 0;
 }
 
-void Chat::printToHistory(char *input, char *user)
+void Chat::printToHistory(string input, string user)
 {
-    time_t end_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
     wmove(this->hist_border, this->history_cursor, 0);
 
     time_t ct;
     time(&ct);
     struct tm *lt = localtime(&ct);
 
-    wprintw(this->hist_border, " %d:%d:%d %s : %s\n", lt->tm_hour, lt->tm_min, lt->tm_sec, user, input);
+    wprintw(this->hist_border, " %d:%d:%d %s : %s\n", lt->tm_hour, lt->tm_min, lt->tm_sec, user.c_str(), input.c_str());
 
     this->history_cursor++;
     box(this->hist_border, 0, 0);
@@ -128,43 +130,45 @@ bool Chat::readFromUser()
         this_thread::sleep_for(chrono::milliseconds(100));
     }
 
+    // redraw win to erase previuous message
     delwin(this->chat_box);
     this->chat_box = create_newwin(3, this->col - 2, this->row - 4, 1, COLOR_PAIR(1));
     wrefresh(this->chat_box);
 
     string input(buffer);
 
-    if (input[0] == '/')
+    if (input.size() > 0)
     {
-
-        stringstream inp_stream(input);
-        vector<string> substrs;
-        string s;
-        while (getline(inp_stream, s, ' '))
+        if (input[0] == '/')
         {
-            substrs.push_back(s);
+            stringstream inp_stream(input);
+            vector<string> substrs;
+            string s;
+            while (getline(inp_stream, s, ' '))
+            {
+                substrs.push_back(s);
+            }
+            string cmd = substrs.at(0);
+
+            if (cmd.compare("/send") == 0) // send file
+            {
+                this->canReceive = false;
+                app->sendFile(substrs.at(1), substrs.at(2));
+                this->canReceive = true;
+            }
+            else if (cmd.compare("/quit") == 0) // quit the program
+            {
+                this->finish = true;
+                return false;
+            }
         }
-        string cmd = substrs.at(0);
-
-        if (cmd.compare("/send") == 0)
-        {
+        else
+        { // send message
             this->canReceive = false;
-            // arrumar o nome dps
-            app->sendFile(substrs.at(1), "poggers.bin");
+            this->app->sendString(&input);
+            printToHistory(input, "gab");
             this->canReceive = true;
         }
-        else if (cmd.compare("/quit") == 0)
-        {
-            this->finish = true;
-            return false;
-        }
-    }
-    else
-    {
-        this->canReceive = false;
-        this->app->sendString(&input);
-        printToHistory(buffer, getenv("USER"));
-        this->canReceive = true;
     }
 
     wrefresh(this->hist_border);
@@ -172,16 +176,4 @@ bool Chat::readFromUser()
     refresh();
 
     return true;
-}
-
-void Chat::receive(void)
-{
-    char str[] = "alguma coisa";
-    char user[] = "gab2";
-
-    while (1)
-    {
-        printToHistory(str, user);
-        sleep(10);
-    }
 }
