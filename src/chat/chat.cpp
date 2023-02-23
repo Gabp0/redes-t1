@@ -73,7 +73,7 @@ void Chat::receiveThread(Chat *cs)
     while (!cs->finish)
     {
         //&& !cs->app->sending
-        if (cs->canReceive)
+        if (cs->canReceive && !cs->receiving)
         {
             cs->receiving = cs->app->listen(&(cs->finish));
         }
@@ -176,7 +176,7 @@ bool Chat::readFromUser()
                     printToStatus("Arquivo " + filename + " não foi encontrado");
                 }
             }
-            else if (cmd.compare("/quit") == 0) // quit the program
+            else if (cmd.compare("/quit") == 0 || cmd.compare("/q") == 0) // quit the program
             {
                 this->finish = true;
                 return false;

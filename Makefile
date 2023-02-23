@@ -11,6 +11,7 @@ LDLIBS = -lm -lgmp -lncurses -ltinfo
 VPATH = src:src/sockets:src/error_handling:src/utils:src/application:src/chat
 
 objs = main.o githyanki.o connection.o common.o socket.o crc.o application.o chat.o
+#objs = main.old.o githyanki.o connection.o common.o socket.o crc.o application.o chat.o
 
 .PHONY: all clean purge
 
@@ -22,6 +23,7 @@ $(TARGET): $(objs)
 
 # compilacao
 main.o: connection.h githyanki.h common.h
+# main.old.o: connection.h githyanki.h common.h
 socket.o: socket.h
 common.o: common.h
 githyanki.o: githyanki.h connection.h common.h errors.h

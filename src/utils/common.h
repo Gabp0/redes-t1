@@ -38,8 +38,6 @@ namespace common
 
   long initInputFile(string filePath);
   void closeInputFile();
-
-  // void flushBuffer(Githyanki::DataBlock **buffer, int size);
 }
 
 #endif

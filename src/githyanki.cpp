@@ -85,8 +85,8 @@ void Githyanki::Frame::fromBytes(void *bytes)
 
 int Githyanki::Frame::checkError()
 {
-    if (randomChance(15))
-        checksum[0]++;
+    // if (randomChance(75))
+    //     checksum[0]++;
 
     char buffer[Githyanki::FRAME_SIZE_MAX];
     int size = 0;
@@ -279,13 +279,6 @@ void Githyanki::WindowRec::acknowledge()
             ack = new Ack(Githyanki::NACK, p->seq);
             break;
         }
-        if (p->seq == endSeq)
-        {
-            lastAck = endSeq;
-            ack = new Ack(Githyanki::ACK, lastAck);
-            obj->otherCon->acknowledge(*ack);
-            return;
-        }
     }
 
     obj->otherCon->acknowledge(*ack);
@@ -419,12 +412,6 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         windowPlace[windowSeqIndex]->received = true;
         receivedFrames++;
         finalize(frame);
-
-        if (lostCount == 0)
-            acknowledge();
-
-        safe_delete(frame);
-        return;
     }
     else
     {
@@ -432,10 +419,10 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
 
         DataBlock *dataBlock = new DataBlock(frame->data, frame->sizeData);
 
-        // cout << windowPlace[windowSeqIndex]->posi << "  ";
         int posi = 0;
         posi = windowPlace[windowSeqIndex]->posi + 1 % Githyanki::RECIEVE_DATABUFFER_MAX;
 
+        
         windowData[posi] = dataBlock;
         windowDataSize++;
         windowPlace[windowSeqIndex]->received = true;
@@ -452,9 +439,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         flushBuffer();
 
     if (receivedFrames == Githyanki::SEND_WINDOW_MAX)
-    {
         acknowledge();
-    }
     else if (windowSeqIndex != 0 && windowPlace[windowSeqIndex - 1]->received == false)
     {                                                // Anterior nao recebido
         for (int i = 1; windowSeqIndex - i > 0; i++) // Checa anteriores
@@ -473,6 +458,13 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
                 break;
             }
         }
+    }
+
+    if (frame->type == Githyanki::END && lostCount == 0)
+    {
+        acknowledge();
+        safe_delete(frame);
+        return;
     }
 
     if (lostCount > 0 && !waitingLostFrame)
@@ -530,7 +522,10 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
     }
 
     lout << "Finished" << endl;
+    
     window.flushBuffer();
+    fclose(foutBinary);
+    
     if (window.obj->type == Githyanki::FILE)
     {
         rename("logs/buffer.bin", window.obj->name);
@@ -628,7 +623,7 @@ void Githyanki::Window::prepareFrames(Githyanki::DataObject *obj)
 
         dataBuffer = obj->getBytes(bytesToSend);
         obj->bytesFramed += bytesToSend;
-
+        lout << obj->bytesFramed << endl;
         frames[i] = new Frame(dataBuffer, bytesToSend, obj->type, seq);
         firstNotFramedIndex++;
         qtyPrepared++;
@@ -687,7 +682,7 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
             otherCon->sendNFrames(window.sendingFrames, window.frames);
         }
     }
-    lout << "Finished" << endl;
+    lout << "Finished";
 
     return 1;
 }

@@ -47,10 +47,10 @@ void Application::send(string filePath, string fileName)
 {
     long sz = common::initInputFile(filePath);
 
+    common::lout << sz << endl;
     Githyanki::DataObject msg = {};
     msg.file = common::fin;
 
-    // msg.data = (char *)text->data();
     msg.type = Githyanki::FILE;
     msg.myCon = this->myCon;
     msg.otherCon = this->otherCon;
