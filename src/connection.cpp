@@ -136,6 +136,43 @@ Githyanki::Ack *Connection::waitAcknowledge()
     }
 }
 
+Githyanki::Ack *Connection::waitRequest()
+{
+    Frame *frame = NULL;
+    Ack *ack = new Ack(0, 0);
+
+    lout << endl
+         << "Waiting for ack" << endl;
+    while (true)
+    {
+        frame = receiveFrame();
+
+        if (frame != NULL)
+        {
+            // Timeout
+            if (frame->type == Githyanki::TIMEOUT)
+            {
+                lout << "\tTimeout" << endl
+                     << endl;
+                ack->seq = 0;
+                ack->type = TIMEOUT;
+                return ack;
+            }
+
+            // Frame received not Acknowledge
+            if (frame->type == Githyanki::RTS || frame->type == Githyanki::CTS)
+            {
+                ack->seq = frame->seq;
+                ack->type = frame->type;
+                lout << "\tReceived\n\t" << (ack->type == Githyanki::ACK ? "Ack: " : "Nack: ") << ack->seq << endl
+                     << endl;
+                return ack;
+            }
+            safe_delete(frame);
+        }
+    }
+}
+
 int Connection::acknowledge(Ack ack)
 {
     Frame *ackFrame;

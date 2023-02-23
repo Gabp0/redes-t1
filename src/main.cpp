@@ -61,14 +61,14 @@ int main(int argc, char **argv)
         Connection serverCon("lo1");
         Connection clientCon("lo2");
 
-        // common::randomSeed();
+        common::randomSeed();
 
         if (cmdOptionExists(argv, argv + argc, "-s"))
         {
                 string text = "Olha gostario de pedir um hambuegerer sem feijao, obrigado";
-                sendFile("arquivos/mosaico_empy.png", "mosaico_empy.png", &serverCon, &clientCon);
+                // sendFile("arquivos/mosaico_empy.png", "mosaico_empy.png", &serverCon, &clientCon);
                 // sendFile("logs/text", "text", &serverCon, &clientCon);
-                // sendString(&text, &serverCon, &clientCon);
+                sendString(&text, &serverCon, &clientCon);
         }
         else if (cmdOptionExists(argv, argv + argc, "-r"))
         {
