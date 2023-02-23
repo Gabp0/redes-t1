@@ -7,10 +7,10 @@
 
 using namespace std;
 
-Application::Application(string server, string client)
+Application::Application(string myCon, string otherCon)
 {
-    this->serverCon = new Connection(server);
-    this->clientCon = new Connection(client);
+    this->myCon = new Connection(myCon);
+    this->otherCon = new Connection(otherCon);
 
     common::randomSeed();
 }
@@ -25,12 +25,12 @@ void Application::sendString(string *text)
     Githyanki::DataObject msg = {};
     msg.data = (char *)text->data();
     msg.type = Githyanki::TEXT;
-    msg.myCon = this->serverCon;
-    msg.otherCon = this->clientCon;
+    msg.myCon = this->myCon;
+    msg.otherCon = this->otherCon;
     msg.size = text->size();
     msg.bytesFramed = 0;
 
-    this->serverCon->setTimeout(2000);
+    this->myCon->setTimeout(2000);
     common::initLog("logs/serverLog.bin");
 
     Githyanki::establishConnection(&msg);
@@ -45,14 +45,14 @@ void Application::sendFile(string filePath, string fileName)
 
     // msg.data = (char *)text->data();
     msg.type = Githyanki::FILE;
-    msg.myCon = this->serverCon;
-    msg.otherCon = this->clientCon;
+    msg.myCon = this->myCon;
+    msg.otherCon = this->otherCon;
     msg.size = sz;
     msg.bytesFramed = 0;
     msg.name = (char *)fileName.data();
     msg.nameSize = fileName.size();
 
-    this->serverCon->setTimeout(2000);
+    this->myCon->setTimeout(2000);
     common::initLog("logs/serverLog.bin");
 
     Githyanki::establishConnection(&msg);
@@ -60,16 +60,16 @@ void Application::sendFile(string filePath, string fileName)
 
 int Application::listen(void)
 {
-    return Githyanki::listenToConnection(this->serverCon, this->clientCon);
+    return Githyanki::listenToConnection(this->myCon, this->otherCon);
 }
 
 string Application::recv(void)
 {
-    this->clientCon->setTimeout(1000);
+    this->otherCon->setTimeout(1000);
     common::initLog("logs/clientLog.bin");
     common::initOutputFile("logs/buffer.bin");
 
-    Githyanki::DataObject *obj = Githyanki::SlidingWindowReceive(this->clientCon, this->serverCon);
+    Githyanki::DataObject *obj = Githyanki::SlidingWindowReceive(this->otherCon, this->myCon);
 
     if (obj->type == Githyanki::FILE)
     {

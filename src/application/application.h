@@ -9,8 +9,8 @@ using namespace std;
 class Application
 {
 private:
-    Connection *serverCon;
-    Connection *clientCon;
+    Connection *myCon;
+    Connection *otherCon;
 
 public:
     Application(string server, string client);
