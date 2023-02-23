@@ -169,7 +169,7 @@ namespace Githyanki
   };
 
   int sendText();
-  int establishConnection(Connection *con);
+  int establishConnection(Connection *otherCon, Connection *myCon);
   int SlidingWindowSend(Githyanki::DataObject *obj);
   Githyanki::DataObject *SlidingWindowReceive(Connection *myCon, Connection *otherCon);
   void printFrame(Githyanki::Frame *f);

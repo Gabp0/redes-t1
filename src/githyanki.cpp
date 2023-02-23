@@ -242,16 +242,16 @@ int Githyanki::establishConnection(Connection *otherCon, Connection *myCon)
             otherCon->sendFrame(&rtsFrame);
             Frame *recvFrame;
             recvFrame = myCon->receiveFrame();
-
+            
             if (recvFrame->type == Githyanki::TIMEOUT){
+                safe_delete(request);
                 cout << "CTS Timeout" << endl;
             } 
             if (recvFrame->type == Githyanki::CTS){
+                safe_delete(request);
                 Githyanki::SlidingWindowSend(&msg);
             }
-
         }
-        safe_delete(request);
     }
     return 0;
 }
