@@ -87,7 +87,7 @@ int Githyanki::Frame::checkError()
 {
     if (randomChance(15))
         checksum[0]++;
-    
+
     char buffer[Githyanki::FRAME_SIZE_MAX];
     int size = 0;
 
@@ -226,28 +226,33 @@ int Githyanki::establishConnection(Connection *otherCon, Connection *myCon)
     Ack *request;
     Githyanki::DataObject msg = {};
     bool RTS = false;
-    
-    while(true){
+
+    while (true)
+    {
         request = myCon->waitRequest();
 
-        if (request->type == Githyanki::RTS){
+        if (request->type == Githyanki::RTS)
+        {
             Frame ctsFrame = Frame(Githyanki::CTS, 0);
             otherCon->sendFrame(&ctsFrame);
             safe_delete(request);
             Githyanki::SlidingWindowReceive(myCon, otherCon);
         }
 
-        if (RTS){
+        if (RTS)
+        {
             Frame rtsFrame = Frame(Githyanki::RTS, 0);
             otherCon->sendFrame(&rtsFrame);
             Frame *recvFrame;
             recvFrame = myCon->receiveFrame();
-            
-            if (recvFrame->type == Githyanki::TIMEOUT){
+
+            if (recvFrame->type == Githyanki::TIMEOUT)
+            {
                 safe_delete(request);
                 cout << "CTS Timeout" << endl;
-            } 
-            if (recvFrame->type == Githyanki::CTS){
+            }
+            if (recvFrame->type == Githyanki::CTS)
+            {
                 safe_delete(request);
                 Githyanki::SlidingWindowSend(&msg);
             }
@@ -447,6 +452,13 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         windowPlace[windowSeqIndex]->received = true;
         receivedFrames++;
         finalize(frame);
+
+        if (lostCount == 0)
+        {
+            acknowledge();
+            safe_delete(frame);
+            return;
+        }
     }
     else
     {
@@ -476,7 +488,7 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
     if (receivedFrames == Githyanki::SEND_WINDOW_MAX)
         acknowledge();
     else if (windowSeqIndex != 0 && windowPlace[windowSeqIndex - 1]->received == false)
-    { // Anterior nao recebido
+    {                                                // Anterior nao recebido
         for (int i = 1; windowSeqIndex - i > 0; i++) // Checa anteriores
         {
             if (windowPlace[windowSeqIndex - i]->received == false)
