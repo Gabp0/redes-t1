@@ -279,6 +279,13 @@ void Githyanki::WindowRec::acknowledge()
             ack = new Ack(Githyanki::NACK, p->seq);
             break;
         }
+        if (p->seq == endSeq)
+        {
+            lastAck = endSeq;
+            ack = new Ack(Githyanki::ACK, lastAck);
+            obj->otherCon->acknowledge(*ack);
+            return;
+        }
     }
 
     obj->otherCon->acknowledge(*ack);
@@ -412,6 +419,12 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         windowPlace[windowSeqIndex]->received = true;
         receivedFrames++;
         finalize(frame);
+
+        if (lostCount == 0)
+            acknowledge();
+
+        safe_delete(frame);
+        return;
     }
     else
     {
@@ -439,7 +452,9 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         flushBuffer();
 
     if (receivedFrames == Githyanki::SEND_WINDOW_MAX)
+    {
         acknowledge();
+    }
     else if (windowSeqIndex != 0 && windowPlace[windowSeqIndex - 1]->received == false)
     {                                                // Anterior nao recebido
         for (int i = 1; windowSeqIndex - i > 0; i++) // Checa anteriores
