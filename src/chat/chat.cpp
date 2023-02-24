@@ -8,6 +8,7 @@
 #include <thread>
 #include <sys/stat.h>
 #include "../application/application.h"
+#include "../githyanki.h"
 
 using namespace std;
 
@@ -82,7 +83,7 @@ void Chat::receiveThread(Chat *cs)
         {
             string rcv = cs->app->recv();
             cs->receiving = false;
-            cs->printToHistory(rcv, "gabAlter");
+            cs->printToHistory("Recebido: " + rcv);
         }
 
         this_thread::sleep_for(chrono::milliseconds(100));
@@ -106,13 +107,14 @@ int Chat::loadChat(void)
 void Chat::printToStatus(string input)
 {
     wmove(stdscr, this->row - 6, 0);
-
+    printw("                                                          "); // clear previuous message
+    wmove(stdscr, this->row - 6, 0);
     printw(input.c_str());
 
     refresh();
 }
 
-void Chat::printToHistory(string input, string user)
+void Chat::printToHistory(string input)
 {
     wmove(this->chat_history, this->history_cursor, 0);
 
@@ -120,12 +122,11 @@ void Chat::printToHistory(string input, string user)
     time(&ct);
     struct tm *lt = localtime(&ct);
 
-    wprintw(this->chat_history, "%d:%d:%d %s : %s\n", lt->tm_hour, lt->tm_min, lt->tm_sec, user.c_str(), input.c_str());
+    wprintw(this->chat_history, "%d:%d:%d %s\n", lt->tm_hour, lt->tm_min, lt->tm_sec, input.c_str());
 
     this->history_cursor++;
 
     wrefresh(this->chat_history);
-    // wrefresh(this->hist_border);
 }
 
 bool Chat::readFromUser()
@@ -162,18 +163,22 @@ bool Chat::readFromUser()
 
             if (cmd.compare("/send") == 0) // send file
             {
-                string filename = substrs.at(1);
-                struct stat buffer;
-                if (stat(filename.c_str(), &buffer) == 0)
+                if (substrs.size() != 3)
                 {
-                    this->canReceive = false;
-                    app->send(substrs.at(1), substrs.at(2));
-                    printToStatus("Arquivo " + filename + " enviado");
-                    this->canReceive = true;
+                    printToStatus("Número inválido de argumentos. Uso: /send {path} {filename}");
                 }
                 else
                 {
-                    printToStatus("Arquivo " + filename + " não foi encontrado");
+                    string filename = substrs.at(1);
+                    this->canReceive = false;
+                    printToStatus("Enviando arquivo...");
+                    int status = app->send(substrs.at(1), substrs.at(2));
+                    printToStatus(to_string(status));
+                    if (status == Githyanki::SUCESS)
+                    {
+                        printToHistory("'''Enviado arquivo " + filename + "'''");
+                    }
+                    this->canReceive = true;
                 }
             }
             else if (cmd.compare("/quit") == 0 || cmd.compare("/q") == 0) // quit the program
@@ -183,14 +188,19 @@ bool Chat::readFromUser()
             }
             else
             {
-                printToStatus("Comando " + cmd + " não encontrado");
+                printToStatus("Comando " + cmd + " não encontrado: " + to_string(Githyanki::INV_CMD));
             }
         }
         else
         { // send message
             this->canReceive = false;
-            this->app->send(&input);
-            printToHistory(input, "gab");
+            printToStatus("Enviando mensagem...");
+            int status = this->app->send(&input);
+            printToStatus(to_string(status));
+            if (status == Githyanki::SUCESS)
+            {
+                printToHistory("Enviado: " + input);
+            }
             this->canReceive = true;
         }
     }

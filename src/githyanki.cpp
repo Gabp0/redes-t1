@@ -422,7 +422,6 @@ void Githyanki::WindowRec::bufferFrame(Frame *frame)
         int posi = 0;
         posi = windowPlace[windowSeqIndex]->posi + 1 % Githyanki::RECIEVE_DATABUFFER_MAX;
 
-        
         windowData[posi] = dataBlock;
         windowDataSize++;
         windowPlace[windowSeqIndex]->received = true;
@@ -522,10 +521,10 @@ Githyanki::DataObject *Githyanki::SlidingWindowReceive(Connection *myCon, Connec
     }
 
     lout << "Finished" << endl;
-    
+
     window.flushBuffer();
     fclose(foutBinary);
-    
+
     if (window.obj->type == Githyanki::FILE)
     {
         rename("logs/buffer.bin", window.obj->name);
@@ -633,13 +632,13 @@ void Githyanki::Window::prepareFrames(Githyanki::DataObject *obj)
 
 int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
 {
-    // Resolve Conflicts
-    // To Do
     Connection *myCon = obj->myCon;
     Connection *otherCon = obj->otherCon;
     Ack *ack;
     Githyanki::Window window = {};
     int lastSeqSended = -1;
+
+    int timeoutCount = 0;
 
     window.init();
     obj->frameQty = ceil(sizeof(obj->data) / Githyanki::DATA_SIZE_MAX);
@@ -673,16 +672,23 @@ int Githyanki::SlidingWindowSend(Githyanki::DataObject *obj)
 
         if (ack->type != Githyanki::TIMEOUT)
         {
+            timeoutCount = 0;
             window.acknowledge(ack);
             if (window.endSeq == -1)
                 window.prepareFrames(obj);
         }
         if (ack->type == Githyanki::TIMEOUT)
         {
+            timeoutCount++;
+            if (timeoutCount > Githyanki::TIMEOUT_LIMIT)
+            {
+                return Githyanki::NO_CONECTION;
+            }
+
             otherCon->sendNFrames(window.sendingFrames, window.frames);
         }
     }
     lout << "Finished";
 
-    return 1;
+    return Githyanki::SUCESS;
 }

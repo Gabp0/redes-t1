@@ -5,6 +5,7 @@
 #include "../githyanki.h"
 #include "../utils/common.h"
 #include <thread>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -23,7 +24,7 @@ Application::~Application()
     common::closeLog();
 }
 
-void Application::send(string *text)
+int Application::send(string *text)
 {
     Githyanki::DataObject msg = {};
     msg.data = (char *)text->data();
@@ -36,16 +37,30 @@ void Application::send(string *text)
     this->myCon->setTimeout(2000);
 
     sendingMutex.lock();
-    if (establishConnection())
+    int status = establishConnection();
+    if (status == Githyanki::SUCESS)
     {
-        Githyanki::SlidingWindowSend(&msg);
+        status = Githyanki::SlidingWindowSend(&msg);
     }
     sendingMutex.unlock();
+
+    return status;
 }
 
-void Application::send(string filePath, string fileName)
+int Application::send(string filePath, string fileName)
 {
+    struct stat buffer;
+    if (stat(fileName.c_str(), &buffer) != 0)
+    {
+        return Githyanki::FILE_NF;
+    }
+
     long sz = common::initInputFile(filePath);
+
+    if (sz < 0)
+    {
+        return Githyanki::FILE_OE;
+    }
 
     common::lout << sz << endl;
     Githyanki::DataObject msg = {};
@@ -61,12 +76,15 @@ void Application::send(string filePath, string fileName)
 
     this->myCon->setTimeout(2000);
 
+    int status = 200;
     sendingMutex.lock();
     if (establishConnection())
     {
-        Githyanki::SlidingWindowSend(&msg);
+        status = Githyanki::SlidingWindowSend(&msg);
     }
     sendingMutex.unlock();
+
+    return status;
 }
 
 int Application::establishConnection()
@@ -81,13 +99,13 @@ int Application::establishConnection()
     {
         safe_delete(request);
         common::lout << "Starting transmission:" << endl;
-        return 1;
+        return Githyanki::SUCESS;
     }
     else if (request->type == Githyanki::TIMEOUT)
     {
         safe_delete(request);
         common::lout << "CTS Timeout" << endl;
-        return 0;
+        return Githyanki::NO_CONECTION;
     }
 
     return 0;
@@ -95,25 +113,27 @@ int Application::establishConnection()
 
 int Application::listen(bool *finish)
 {
-    while(true){
-    sendingMutex.lock();
-    Ack *request = myCon->waitRequest();
-    sendingMutex.unlock();
-
-    if (request->type == Githyanki::RTS)
+    while (true)
     {
-        common::lout << "Request frame received:"
-                     << "\n\tType - RTS" << endl;
-        Frame ctsFrame = Frame(Githyanki::CTS, 0);
-        otherCon->sendFrame(&ctsFrame);
-        safe_delete(request);
-        return 1;
-    }
-    if(*finish){
-        return 0;
-    }
-    
-    this_thread::sleep_for(chrono::milliseconds(100));
+        sendingMutex.lock();
+        Ack *request = myCon->waitRequest();
+        sendingMutex.unlock();
+
+        if (request->type == Githyanki::RTS)
+        {
+            common::lout << "Request frame received:"
+                         << "\n\tType - RTS" << endl;
+            Frame ctsFrame = Frame(Githyanki::CTS, 0);
+            otherCon->sendFrame(&ctsFrame);
+            safe_delete(request);
+            return 1;
+        }
+        if (*finish)
+        {
+            return 0;
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
     return 0;
 }

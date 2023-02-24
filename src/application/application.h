@@ -16,8 +16,8 @@ private:
 public:
     Application(string myCon, string otherCon);
     ~Application();
-    void send(string *text);
-    void send(string filePath, string fileName);
+    int send(string *text);
+    int send(string filePath, string fileName);
     
     int listen(bool *finish);
     int establishConnection();

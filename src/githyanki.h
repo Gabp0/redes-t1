@@ -23,6 +23,7 @@ namespace Githyanki
   static const short DATA_SIZE_MAX = FRAME_SIZE_MAX - CHECK_SIZE - HEADER_SIZE;
   static const short RECIEVE_DATABUFFER_MAX = 126;
   static const short MINIMUM_FRAME_SIZE = 36;
+  static const short TIMEOUT_LIMIT = 5;
 
   // MSG
   static const short SUCESS = 200;

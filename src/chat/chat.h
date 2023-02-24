@@ -23,7 +23,7 @@ private:
     bool finish;
 
     static void receiveThread(Chat *cs);
-    void printToHistory(string input, string user);
+    void printToHistory(string input);
     void printToStatus(string input);
 
 public:
