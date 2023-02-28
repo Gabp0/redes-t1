@@ -5,7 +5,7 @@ TARGET = chat
 
 # flags
 CPPFLAGS = -Wall -g --std=c++17
-LDLIBS = -lm -lgmp -lncurses -ltinfo
+LDLIBS = -lm -lgmp -lncurses -ltinfo -lpthread
 
 # diretorios fonte
 VPATH = src:src/sockets:src/error_handling:src/utils:src/application:src/chat

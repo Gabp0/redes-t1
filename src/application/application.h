@@ -12,10 +12,13 @@ class Application
 private:
     Connection *myCon;
     Connection *otherCon;
+    string status_msg;
 
 public:
     Application(string myCon, string otherCon);
     ~Application();
+    string getStatus(void);
+
     int send(string *text);
     int send(string filePath, string fileName);
     

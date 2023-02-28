@@ -109,7 +109,7 @@ void Chat::printToStatus(string input)
     wmove(stdscr, this->row - 6, 0);
     printw("                                                          "); // clear previuous message
     wmove(stdscr, this->row - 6, 0);
-    printw(input.c_str());
+    printw("%s\n", input.c_str());
 
     refresh();
 }
@@ -173,7 +173,7 @@ bool Chat::readFromUser()
                     this->canReceive = false;
                     printToStatus("Enviando arquivo...");
                     int status = app->send(substrs.at(1), substrs.at(2));
-                    printToStatus(to_string(status));
+                    printToStatus(app->getStatus() + ":" + to_string(status));
                     if (status == Githyanki::SUCESS)
                     {
                         printToHistory("'''Enviado arquivo " + filename + "'''");
@@ -196,7 +196,7 @@ bool Chat::readFromUser()
             this->canReceive = false;
             printToStatus("Enviando mensagem...");
             int status = this->app->send(&input);
-            printToStatus(to_string(status));
+            printToStatus(app->getStatus() + ":" + to_string(status));
             if (status == Githyanki::SUCESS)
             {
                 printToHistory("Enviado: " + input);

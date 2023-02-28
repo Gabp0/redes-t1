@@ -24,6 +24,11 @@ Application::~Application()
     common::closeLog();
 }
 
+string Application::getStatus(void)
+{
+    return this->status_msg;
+}
+
 int Application::send(string *text)
 {
     Githyanki::DataObject msg = {};
@@ -37,10 +42,23 @@ int Application::send(string *text)
     this->myCon->setTimeout(2000);
 
     sendingMutex.lock();
+
     int status = establishConnection();
+    if (status == Githyanki::NO_CONECTION)
+    {
+        this->status_msg = "Sem conexao";
+        sendingMutex.unlock();
+        return status;
+    }
+
+    status = Githyanki::SlidingWindowSend(&msg);
     if (status == Githyanki::SUCESS)
     {
-        status = Githyanki::SlidingWindowSend(&msg);
+        this->status_msg = "Sucesso.";
+    }
+    else
+    {
+        this->status_msg = "Conexao perdida.";
     }
     sendingMutex.unlock();
 
@@ -50,15 +68,18 @@ int Application::send(string *text)
 int Application::send(string filePath, string fileName)
 {
     struct stat buffer;
-    if (stat(fileName.c_str(), &buffer) != 0)
+    if (stat(filePath.c_str(), &buffer) == -1)
     {
-        return Githyanki::FILE_NF;
+        this->status_msg = "Arquivo nao encontrado";
+        // return Githyanki::FILE_NF;
+        return stat(fileName.c_str(), &buffer);
     }
 
     long sz = common::initInputFile(filePath);
 
     if (sz < 0)
     {
+        this->status_msg = "Nao foi possível abrir o arquivo";
         return Githyanki::FILE_OE;
     }
 
@@ -76,11 +97,24 @@ int Application::send(string filePath, string fileName)
 
     this->myCon->setTimeout(2000);
 
-    int status = 200;
     sendingMutex.lock();
-    if (establishConnection())
+
+    int status = establishConnection();
+    if (status == Githyanki::NO_CONECTION)
     {
-        status = Githyanki::SlidingWindowSend(&msg);
+        this->status_msg = "Sem conexao";
+        sendingMutex.unlock();
+        return status;
+    }
+
+    status = Githyanki::SlidingWindowSend(&msg);
+    if (status == Githyanki::SUCESS)
+    {
+        this->status_msg = "Sucesso.";
+    }
+    else
+    {
+        this->status_msg = "Conexao perdida.";
     }
     sendingMutex.unlock();
 
